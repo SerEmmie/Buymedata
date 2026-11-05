@@ -12,27 +12,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-      // Single Page Application redirect & path resolver for GitHub Pages
-      (function() {
-        if (window.location.hostname.endsWith('github.io')) {
-          // If GitHub Pages is serving the raw repository root (where /src/main.tsx cannot be executed by browser),
-          // automatically route to /docs/ where the compiled bundle lives.
-          var path = window.location.pathname;
-          var hasDocs = path.indexOf('/docs') !== -1;
-          var isRawDevHtml = !document.querySelector || !document.querySelector('script[src*="assets/"]');
-          if (!hasDocs && isRawDevHtml) {
-            var parts = path.split('/').filter(Boolean);
-            var repo = parts.length > 0 ? '/' + parts[0] : '';
-            var remainder = parts.slice(1).join('/');
-            var target = repo + '/docs/' + (remainder ? remainder : '') + window.location.search + window.location.hash;
-            if (window.location.pathname !== repo + '/docs/' && window.location.pathname !== repo + '/docs') {
-              window.location.replace(target);
-            }
-          }
-        }
-      })();
-    </script>
     <script type="module" crossorigin src="./assets/index-DUV5poX2.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-fwfxp-xD.css">
   </head>
@@ -48,6 +27,32 @@
         </noscript>
       </div>
     </div>
+    <script>
+      // Production bundle fallback for static hosts without Vite dev runtime (e.g. GitHub Pages root branch)
+      (function() {
+        if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
+          setTimeout(function() {
+            var preloader = document.getElementById('buymedata-preloader');
+            if (preloader) {
+              console.log('Loading compiled production bundle...');
+              var segs = window.location.pathname.split('/').filter(Boolean);
+              var repo = segs.length > 0 ? '/' + segs[0] : '';
+              
+              var css = document.createElement('link');
+              css.rel = 'stylesheet';
+              css.href = repo + '/assets/index.css';
+              document.head.appendChild(css);
+
+              var js = document.createElement('script');
+              js.type = 'module';
+              js.crossOrigin = 'anonymous';
+              js.src = repo + '/assets/index.js';
+              document.body.appendChild(js);
+            }
+          }, 350);
+        }
+      })();
+    </script>
   </body>
 </html>
 

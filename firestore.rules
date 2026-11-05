@@ -55,10 +55,9 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
-    // Creator profiles
+    // Creator profiles: Allow public reading so anyone can discover creators and check usernames
     match /creatorProfiles/{profileId} {
-      allow get: if true;
-      allow list: if resource.data.published == true || (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+      allow read: if true;
       allow create: if isSignedIn() && incoming().userId == request.auth.uid;
       allow update: if isSignedIn() && (
         isAdmin() || (
@@ -69,10 +68,22 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Usernames registry: allow public lookup, allow authenticated user to claim their own username
+    match /usernames/{username} {
+      allow read: if true;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isAdmin() || (
+          existing().userId == request.auth.uid &&
+          incoming().userId == request.auth.uid
+        )
+      );
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
     // Campaigns: Protect server-maintained aggregates (amountRaised & contributorCount)
     match /campaigns/{campaignId} {
-      allow get: if true;
-      allow list: if resource.data.status == 'active' || resource.data.visibility == 'public' || (isSignedIn() && resource.data.creatorId == request.auth.uid) || isAdmin();
+      allow read: if true;
       allow create: if isSignedIn() && incoming().creatorId == request.auth.uid && (
         incoming().amountRaised == 0 &&
         incoming().contributorCount == 0 &&

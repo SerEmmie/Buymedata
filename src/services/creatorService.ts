@@ -16,14 +16,33 @@ import { CreatorProfile, ThemePreset } from '../types';
 export const DEFAULT_SUGGESTED_AMOUNTS = [500, 1000, 2000, 5000];
 
 export async function checkUsernameAvailability(username: string, currentUserId?: string): Promise<boolean> {
-  const clean = username.toLowerCase().trim();
-  if (!clean || clean.length < 3) return false;
+  const clean = username.toLowerCase().trim().replace(/^@/, '');
+  if (!clean || clean.length < 3 || clean.length > 30) return false;
   
-  // Forbidden reserved words
-  const reserved = ['admin', 'dashboard', 'auth', 'login', 'register', 'checkout', 'api', 'help', 'about', 'terms', 'privacy', 'payouts'];
+  // Characters allowed: a-z, 0-9, underscore
+  if (!/^[a-z0-9_]+$/.test(clean)) return false;
+
+  // Forbidden reserved words for system routes
+  const reserved = [
+    'admin', 'dashboard', 'auth', 'login', 'register', 'checkout', 'api',
+    'help', 'about', 'terms', 'privacy', 'payouts', 'docs', 'assets',
+    'settings', 'notifications', 'how-it-works', 'faq', 'guidelines', 'refund-policy',
+    'campaigns', 'explore', 'support', 'onboarding'
+  ];
   if (reserved.includes(clean)) return false;
 
   try {
+    // 1. Direct O(1) lookup in usernames registry
+    const uDoc = await getDoc(doc(db, 'usernames', clean));
+    if (uDoc.exists()) {
+      const data = uDoc.data();
+      if (currentUserId && data?.userId === currentUserId) {
+        return true;
+      }
+      return false;
+    }
+
+    // 2. Lookup in creatorProfiles collection
     const q = query(
       collection(db, 'creatorProfiles'),
       where('username', '==', clean),
@@ -39,14 +58,32 @@ export async function checkUsernameAvailability(username: string, currentUserId?
     }
     return false;
   } catch (err) {
-    console.error('Error checking username:', err);
-    return false;
+    console.warn('Username query notice:', err);
+    // If network or permission check failed, attempt direct document read
+    try {
+      const uDoc = await getDoc(doc(db, 'usernames', clean));
+      if (!uDoc.exists()) return true;
+      return currentUserId ? uDoc.data()?.userId === currentUserId : false;
+    } catch {
+      return true;
+    }
   }
 }
 
 export async function getCreatorProfileByUsername(username: string): Promise<CreatorProfile | null> {
-  const clean = username.toLowerCase().trim();
+  const clean = username.toLowerCase().trim().replace(/^@/, '');
   try {
+    // 1. Try finding via username registry mapping
+    const uDoc = await getDoc(doc(db, 'usernames', clean));
+    if (uDoc.exists()) {
+      const uData = uDoc.data();
+      if (uData?.userId) {
+        const prof = await getCreatorProfileByUserId(uData.userId);
+        if (prof) return prof;
+      }
+    }
+
+    // 2. Query creatorProfiles
     const q = query(
       collection(db, 'creatorProfiles'),
       where('username', '==', clean),
@@ -121,6 +158,16 @@ export async function saveCreatorProfile(profile: Partial<CreatorProfile> & { us
 
   try {
     await setDoc(doc(db, 'creatorProfiles', docId), fullProfile, { merge: true });
+
+    // Register in usernames collection for O(1) public lookups
+    if (fullProfile.username) {
+      await setDoc(doc(db, 'usernames', fullProfile.username), {
+        userId: fullProfile.userId,
+        displayName: fullProfile.displayName,
+        updatedAt: now,
+      }, { merge: true }).catch(console.warn);
+    }
+
     return fullProfile;
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, `creatorProfiles/${docId}`);

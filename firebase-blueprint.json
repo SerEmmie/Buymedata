@@ -246,12 +246,28 @@
         "createdAt": { "type": "string", "description": "Timestamp" }
       },
       "required": ["id", "administratorId", "action", "entityType", "entityId", "createdAt"]
+    },
+    "UsernameRecord": {
+      "title": "UsernameRecord",
+      "description": "Unique username registry for rapid public page resolution and availability checking",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner UID" },
+        "displayName": { "type": "string", "description": "Creator display name" },
+        "createdAt": { "type": "string", "description": "Registration timestamp" },
+        "updatedAt": { "type": "string", "description": "Update timestamp" }
+      },
+      "required": ["userId"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": { "$ref": "#/entities/User" },
       "description": "User profiles and credentials"
+    },
+    "/usernames/{username}": {
+      "schema": { "$ref": "#/entities/UsernameRecord" },
+      "description": "Unique username registry for rapid public page resolution and availability checking"
     },
     "/creatorProfiles/{profileId}": {
       "schema": { "$ref": "#/entities/CreatorProfile" },
