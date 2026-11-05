@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { getRepoBasePath } from '../../router';
 
 interface Props {
   children: ReactNode;
@@ -29,9 +30,8 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleGoHome = () => {
-    window.location.href = window.location.pathname.startsWith('/buymedata')
-      ? '/buymedata/'
-      : '/';
+    const basePath = getRepoBasePath();
+    window.location.href = basePath ? `${basePath}/` : '/';
   };
 
   public render() {

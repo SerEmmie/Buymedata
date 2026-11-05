@@ -31,6 +31,7 @@ export function useLocation() {
 /**
  * Detects the repository base path if hosted on GitHub Pages or a subdirectory.
  * e.g., https://username.github.io/my-repo/ -> returns "/my-repo"
+ * e.g., https://username.github.io/my-repo/docs/ -> returns "/my-repo/docs"
  */
 export function getRepoBasePath(): string {
   if (typeof window === 'undefined') return '';
@@ -38,6 +39,9 @@ export function getRepoBasePath(): string {
   if (hostname.endsWith('github.io')) {
     const segments = window.location.pathname.split('/').filter(Boolean);
     if (segments.length > 0) {
+      if (segments.length > 1 && segments[1] === 'docs') {
+        return `/${segments[0]}/docs`;
+      }
       return `/${segments[0]}`;
     }
   }
@@ -66,6 +70,11 @@ export function getCurrentNormalizedPath(): string {
   const basePath = getRepoBasePath();
   if (basePath && rawPath.startsWith(basePath)) {
     rawPath = rawPath.slice(basePath.length) || '/';
+  }
+
+  // Strip standalone /docs if accessed directly without matching base
+  if (rawPath.startsWith('/docs')) {
+    rawPath = rawPath.slice(5) || '/';
   }
 
   // Strip index.html if present
