@@ -1,0 +1,6 @@
+{
+  "name": "BuyMeData",
+  "description": "Creator support, crowdfunding, and personal fundraising platform enabling creators and causes to receive financial support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

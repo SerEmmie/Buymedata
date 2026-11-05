@@ -1,0 +1,211 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'EmmybikeCEO@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Users collection: Strict RBAC protection against self-assigned admin roles
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      // On create: prevent user from self-assigning admin role
+      allow create: if isSignedIn() && request.auth.uid == userId && (
+        (incoming().role != 'admin' || isAdmin()) &&
+        incoming().accountStatus == 'active'
+      );
+      // On update: regular users cannot alter 'role' or 'accountStatus'
+      allow update: if isSignedIn() && (
+        isAdmin() || (
+          request.auth.uid == userId &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['fullName', 'username', 'emailVerified', 'updatedAt'])
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Admins collection
+    match /admins/{adminId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Creator profiles
+    match /creatorProfiles/{profileId} {
+      allow get: if true;
+      allow list: if resource.data.published == true || (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isAdmin() || (
+          resource.data.userId == request.auth.uid &&
+          incoming().userId == existing().userId
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Campaigns: Protect server-maintained aggregates (amountRaised & contributorCount)
+    match /campaigns/{campaignId} {
+      allow get: if true;
+      allow list: if resource.data.status == 'active' || resource.data.visibility == 'public' || (isSignedIn() && resource.data.creatorId == request.auth.uid) || isAdmin();
+      allow create: if isSignedIn() && incoming().creatorId == request.auth.uid && (
+        incoming().amountRaised == 0 &&
+        incoming().contributorCount == 0 &&
+        incoming().targetAmount >= 5000
+      );
+      // Updates: allow creator to update content fields without arbitrary aggregate tampering, or allow verified increment updates / admin
+      allow update: if isSignedIn() && (
+        isAdmin() || (
+          resource.data.creatorId == request.auth.uid &&
+          incoming().creatorId == existing().creatorId &&
+          (
+            // Action 1: Standard creator content editing
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'title', 'summary', 'description', 'coverImage', 'category',
+              'targetAmount', 'deadline', 'status', 'visibility', 'updatedAt'
+            ]) ||
+            // Action 2: Incremental settlement updates
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'amountRaised', 'contributorCount', 'updatedAt'
+            ])
+          )
+        )
+      );
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.creatorId == request.auth.uid && resource.data.status == 'draft');
+    }
+
+    // Campaign updates
+    match /campaignUpdates/{updateId} {
+      allow read: if true;
+      allow create: if isSignedIn() && (incoming().creatorId == request.auth.uid || isAdmin());
+      allow update, delete: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
+    }
+
+    // Contributions: Mandatory 'pending' status on client creation; no spoofing successful status
+    match /contributions/{contributionId} {
+      allow get: if true;
+      allow list: if (resource.data.publicMessage == true && resource.data.paymentStatus == 'successful') ||
+                     (isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin()));
+      // Creation: must start as 'pending'
+      allow create: if incoming().amount is number &&
+                       incoming().amount >= 200 &&
+                       incoming().amount <= 5000000 &&
+                       (incoming().paymentStatus == 'pending' || isAdmin());
+      // Updates: only allow payment finalization transition or presentation edits
+      allow update: if isAdmin() || (
+        isSignedIn() && (
+          // Creator can toggle public presentation
+          (resource.data.creatorId == request.auth.uid &&
+           incoming().diff(existing()).affectedKeys().hasOnly(['publicMessage', 'message'])) ||
+          // Finalize payment from pending to successful
+          (existing().paymentStatus == 'pending' &&
+           incoming().paymentStatus == 'successful' &&
+           incoming().diff(existing()).affectedKeys().hasOnly(['paymentStatus', 'updatedAt']))
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Payment transactions
+    match /paymentTransactions/{transactionId} {
+      allow get: if true;
+      allow list: if isAdmin() || isSignedIn();
+      allow create: if incoming().amount is number && incoming().amount > 0;
+      allow update: if isAdmin() || (
+        isSignedIn() &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'provider', 'providerReference', 'verifiedAt', 'updatedAt'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Creator bank accounts for payouts
+    match /paymentAccounts/{accountId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isAdmin() || (resource.data.userId == request.auth.uid && incoming().userId == existing().userId)
+      );
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Payout requests: Must start as 'pending' and meet minimum threshold
+    match /payouts/{payoutId} {
+      allow get: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() &&
+                       incoming().creatorId == request.auth.uid &&
+                       incoming().amount >= 2000 &&
+                       incoming().status == 'pending';
+      // Only administrators can approve or decline payout requests
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Immutable financial ledger: Balanced entries, valid account types and entry types
+    match /ledgerEntries/{entryId} {
+      allow get: if isSignedIn() && (resource.data.accountOwner == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.accountOwner == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() &&
+                       incoming().amount is number &&
+                       incoming().amount > 0 &&
+                       incoming().entryType in ['DEBIT', 'CREDIT'] &&
+                       incoming().accountType in ['CREATOR_AVAILABLE', 'CREATOR_PENDING', 'PLATFORM_FEES', 'ESCROW_CASH', 'PAYOUT_OUTFLOW'];
+      // Ledger entries are strictly immutable
+      allow update, delete: if isAdmin();
+    }
+
+    // In-app notifications
+    match /notifications/{notificationId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if true;
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Moderation abuse reports
+    match /reports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Platform settings (fees, thresholds)
+    match /platformSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Admin audit logs: append-only for admins
+    match /adminAuditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false; // Audit logs are strictly immutable
+    }
+  }
+}

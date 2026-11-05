@@ -1,0 +1,305 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account profile and authentication details",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Auth UID" },
+        "fullName": { "type": "string", "description": "Full name of the user", "maxLength": 100 },
+        "email": { "type": "string", "description": "Email address of user", "maxLength": 150 },
+        "username": { "type": "string", "description": "Unique URL-friendly username", "maxLength": 40 },
+        "role": { "type": "string", "description": "User role: creator, supporter, admin", "enum": ["creator", "supporter", "admin"] },
+        "accountStatus": { "type": "string", "description": "Account status", "enum": ["active", "suspended", "pending_review"] },
+        "emailVerified": { "type": "boolean", "description": "Whether email is verified" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of creation" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      },
+      "required": ["uid", "fullName", "email", "username", "role", "accountStatus"]
+    },
+    "CreatorProfile": {
+      "title": "CreatorProfile",
+      "description": "Public creator profile and page settings",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of owner user" },
+        "displayName": { "type": "string", "description": "Display name on creator page", "maxLength": 100 },
+        "username": { "type": "string", "description": "Unique username slug", "maxLength": 40 },
+        "biography": { "type": "string", "description": "Short bio", "maxLength": 600 },
+        "profileImage": { "type": "string", "description": "URL to avatar" },
+        "coverImage": { "type": "string", "description": "URL to cover banner" },
+        "category": { "type": "string", "description": "Creator primary category" },
+        "website": { "type": "string", "description": "Personal website or portfolio link" },
+        "socialLinks": { "type": "object", "description": "Social media handles or URLs" },
+        "supportButtonText": { "type": "string", "description": "Custom CTA text e.g. Buy me data" },
+        "suggestedAmounts": { "type": "array", "description": "Preset suggested support amounts in minor/major currency units" },
+        "currencyPreference": { "type": "string", "description": "Default currency code e.g. NGN", "enum": ["NGN", "USD", "KES", "GHS"] },
+        "theme": { "type": "string", "description": "Profile theme preset", "enum": ["violet", "emerald", "amber", "rose", "ocean", "midnight"] },
+        "publicSettings": { "type": "object", "description": "Toggles for public totals, supporter messages, etc." },
+        "published": { "type": "boolean", "description": "Whether the creator page is publicly published" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "description": "Update timestamp" }
+      },
+      "required": ["userId", "displayName", "username", "published"]
+    },
+    "Campaign": {
+      "title": "Campaign",
+      "description": "Fundraising campaign created by a creator",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique campaign ID" },
+        "creatorId": { "type": "string", "description": "UID of campaign creator" },
+        "creatorUsername": { "type": "string", "description": "Creator username" },
+        "title": { "type": "string", "description": "Campaign headline", "maxLength": 150 },
+        "slug": { "type": "string", "description": "URL slug for campaign", "maxLength": 100 },
+        "summary": { "type": "string", "description": "Brief summary", "maxLength": 300 },
+        "description": { "type": "string", "description": "Detailed markdown/HTML description" },
+        "coverImage": { "type": "string", "description": "Banner image URL" },
+        "category": { "type": "string", "description": "Campaign category" },
+        "targetAmount": { "type": "number", "description": "Fundraising goal amount" },
+        "currency": { "type": "string", "description": "Currency code", "enum": ["NGN", "USD", "KES", "GHS"] },
+        "amountRaised": { "type": "number", "description": "Total successfully raised" },
+        "contributorCount": { "type": "number", "description": "Total unique contributors count" },
+        "status": { "type": "string", "description": "Campaign lifecycle status", "enum": ["draft", "active", "paused", "completed", "suspended"] },
+        "visibility": { "type": "string", "description": "Visibility setting", "enum": ["public", "unlisted", "private"] },
+        "deadline": { "type": "string", "description": "Optional ISO deadline date" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "description": "Update timestamp" }
+      },
+      "required": ["id", "creatorId", "title", "slug", "targetAmount", "currency", "status"]
+    },
+    "CampaignUpdate": {
+      "title": "CampaignUpdate",
+      "description": "Progress update published on a campaign",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Update ID" },
+        "campaignId": { "type": "string", "description": "Associated campaign ID" },
+        "creatorId": { "type": "string", "description": "Creator UID" },
+        "title": { "type": "string", "description": "Update headline", "maxLength": 150 },
+        "content": { "type": "string", "description": "Content body" },
+        "images": { "type": "array", "description": "Array of attached image URLs" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "campaignId", "creatorId", "title", "content"]
+    },
+    "Contribution": {
+      "title": "Contribution",
+      "description": "Financial contribution made to a creator or campaign",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Contribution ID" },
+        "creatorId": { "type": "string", "description": "Recipient creator UID" },
+        "campaignId": { "type": "string", "description": "Optional associated campaign ID" },
+        "campaignTitle": { "type": "string", "description": "Optional campaign title" },
+        "supporterName": { "type": "string", "description": "Supporter display name", "maxLength": 100 },
+        "supporterEmail": { "type": "string", "description": "Supporter email address", "maxLength": 150 },
+        "amount": { "type": "number", "description": "Amount in currency units" },
+        "currency": { "type": "string", "description": "Currency code", "enum": ["NGN", "USD", "KES", "GHS"] },
+        "message": { "type": "string", "description": "Message from supporter", "maxLength": 500 },
+        "anonymous": { "type": "boolean", "description": "Whether supporter identity is hidden publicly" },
+        "publicMessage": { "type": "boolean", "description": "Whether message is displayed on public page" },
+        "paymentStatus": { "type": "string", "description": "Payment status", "enum": ["pending", "successful", "failed", "refunded"] },
+        "paymentTransactionId": { "type": "string", "description": "Reference ID to transaction record" },
+        "createdAt": { "type": "string", "description": "Contribution timestamp" }
+      },
+      "required": ["id", "creatorId", "amount", "currency", "paymentStatus"]
+    },
+    "PaymentTransaction": {
+      "title": "PaymentTransaction",
+      "description": "Gateway transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Transaction ID" },
+        "contributionId": { "type": "string", "description": "Related contribution ID" },
+        "provider": { "type": "string", "description": "Payment gateway e.g. paystack, sandbox", "enum": ["paystack", "flutterwave", "sandbox"] },
+        "providerReference": { "type": "string", "description": "Provider reference or checkout session ID" },
+        "amount": { "type": "number", "description": "Transaction amount" },
+        "currency": { "type": "string", "description": "Transaction currency", "enum": ["NGN", "USD", "KES", "GHS"] },
+        "status": { "type": "string", "description": "Payment status", "enum": ["pending", "successful", "failed", "reversed"] },
+        "idempotencyKey": { "type": "string", "description": "Unique key to prevent double charging" },
+        "verifiedAt": { "type": "string", "description": "Timestamp when provider verified payment" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "description": "Update timestamp" }
+      },
+      "required": ["id", "contributionId", "provider", "amount", "currency", "status"]
+    },
+    "PaymentAccount": {
+      "title": "PaymentAccount",
+      "description": "Creator bank account for payouts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Account ID" },
+        "userId": { "type": "string", "description": "Creator UID" },
+        "provider": { "type": "string", "description": "Provider e.g. paystack, sandbox" },
+        "bankName": { "type": "string", "description": "Bank name" },
+        "bankCode": { "type": "string", "description": "Bank CBN code / routing code" },
+        "maskedAccountNumber": { "type": "string", "description": "Masked account number e.g. •••• 4821" },
+        "accountName": { "type": "string", "description": "Verified recipient name" },
+        "verificationStatus": { "type": "string", "description": "Verification status", "enum": ["unverified", "verified", "rejected"] },
+        "createdAt": { "type": "string", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "description": "Update timestamp" }
+      },
+      "required": ["id", "userId", "bankName", "bankCode", "maskedAccountNumber", "accountName", "verificationStatus"]
+    },
+    "Payout": {
+      "title": "Payout",
+      "description": "Withdrawal payout to creator bank account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Payout ID" },
+        "creatorId": { "type": "string", "description": "Creator UID" },
+        "amount": { "type": "number", "description": "Requested withdrawal amount" },
+        "fee": { "type": "number", "description": "Applicable payout fee" },
+        "netAmount": { "type": "number", "description": "Net amount to receive" },
+        "currency": { "type": "string", "description": "Currency code", "enum": ["NGN", "USD", "KES", "GHS"] },
+        "payoutAccountId": { "type": "string", "description": "PaymentAccount record ID" },
+        "bankDetails": { "type": "object", "description": "Bank name, masked account, account name snapshot" },
+        "providerReference": { "type": "string", "description": "Transfer reference" },
+        "status": { "type": "string", "description": "Payout status", "enum": ["pending", "processing", "successful", "failed", "reversed", "cancelled"] },
+        "failureReason": { "type": "string", "description": "Reason for failure if any" },
+        "requestedAt": { "type": "string", "description": "Requested timestamp" },
+        "completedAt": { "type": "string", "description": "Completed timestamp" }
+      },
+      "required": ["id", "creatorId", "amount", "currency", "payoutAccountId", "status", "requestedAt"]
+    },
+    "LedgerEntry": {
+      "title": "LedgerEntry",
+      "description": "Double-entry financial ledger item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Entry ID" },
+        "ledgerTransactionId": { "type": "string", "description": "Parent transaction group ID" },
+        "accountOwner": { "type": "string", "description": "UID or 'PLATFORM'" },
+        "accountType": { "type": "string", "description": "Account category", "enum": ["CREATOR_AVAILABLE", "CREATOR_PENDING", "PLATFORM_FEES", "ESCROW_CASH", "PAYOUT_OUTFLOW"] },
+        "entryType": { "type": "string", "description": "DEBIT or CREDIT", "enum": ["DEBIT", "CREDIT"] },
+        "amount": { "type": "number", "description": "Integer minor units or decimal amount" },
+        "currency": { "type": "string", "description": "Currency code" },
+        "description": { "type": "string", "description": "Audit description" },
+        "referenceId": { "type": "string", "description": "Originating contribution or payout ID" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "ledgerTransactionId", "accountOwner", "accountType", "entryType", "amount", "currency"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app and activity notifications",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Notification ID" },
+        "userId": { "type": "string", "description": "Recipient UID" },
+        "title": { "type": "string", "description": "Headline" },
+        "message": { "type": "string", "description": "Message body" },
+        "type": { "type": "string", "description": "Category", "enum": ["contribution_received", "campaign_update", "goal_reached", "payout_processed", "payout_failed", "system_alert", "moderation"] },
+        "relatedResourceId": { "type": "string", "description": "Target resource ID e.g. campaign or contribution" },
+        "isRead": { "type": "boolean", "description": "Read flag" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "userId", "title", "message", "type", "isRead"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "Content safety or abuse report against a campaign or creator",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Report ID" },
+        "reporterId": { "type": "string", "description": "Reporter UID or 'anonymous'" },
+        "reportedUserId": { "type": "string", "description": "Accused creator UID" },
+        "campaignId": { "type": "string", "description": "Reported campaign ID if applicable" },
+        "reason": { "type": "string", "description": "Report reason category" },
+        "description": { "type": "string", "description": "Detailed explanation", "maxLength": 1000 },
+        "status": { "type": "string", "description": "Review status", "enum": ["pending", "investigating", "resolved", "dismissed"] },
+        "reviewedBy": { "type": "string", "description": "Admin UID who handled review" },
+        "reviewedAt": { "type": "string", "description": "Timestamp of review" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "reason", "description", "status", "createdAt"]
+    },
+    "PlatformSettings": {
+      "title": "PlatformSettings",
+      "description": "Global platform fees and thresholds",
+      "type": "object",
+      "properties": {
+        "platformFeePercentage": { "type": "number", "description": "Fee percentage e.g. 5.0" },
+        "minimumContribution": { "type": "number", "description": "Minimum contribution allowed in NGN" },
+        "maximumContribution": { "type": "number", "description": "Maximum contribution allowed in NGN" },
+        "minimumPayout": { "type": "number", "description": "Minimum withdrawal threshold in NGN" },
+        "payoutFee": { "type": "number", "description": "Fixed payout transfer fee in NGN" },
+        "supportedCurrencies": { "type": "array", "description": "List of active currencies" },
+        "maintenanceMode": { "type": "boolean", "description": "Maintenance mode switch" },
+        "updatedAt": { "type": "string", "description": "Update timestamp" }
+      },
+      "required": ["platformFeePercentage", "minimumContribution", "minimumPayout", "supportedCurrencies"]
+    },
+    "AdminAuditLog": {
+      "title": "AdminAuditLog",
+      "description": "Audit trail of administrative actions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Log ID" },
+        "administratorId": { "type": "string", "description": "Admin UID" },
+        "action": { "type": "string", "description": "Action performed e.g. SUSPEND_CAMPAIGN, APPROVE_PAYOUT" },
+        "entityType": { "type": "string", "description": "Type of target entity" },
+        "entityId": { "type": "string", "description": "ID of target entity" },
+        "reason": { "type": "string", "description": "Justification or memo" },
+        "metadata": { "type": "object", "description": "Snapshot or context payload" },
+        "createdAt": { "type": "string", "description": "Timestamp" }
+      },
+      "required": ["id", "administratorId", "action", "entityType", "entityId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles and credentials"
+    },
+    "/creatorProfiles/{profileId}": {
+      "schema": { "$ref": "#/entities/CreatorProfile" },
+      "description": "Public creator profiles indexed by username or profile ID"
+    },
+    "/campaigns/{campaignId}": {
+      "schema": { "$ref": "#/entities/Campaign" },
+      "description": "Fundraising campaigns"
+    },
+    "/campaignUpdates/{updateId}": {
+      "schema": { "$ref": "#/entities/CampaignUpdate" },
+      "description": "Campaign progress updates"
+    },
+    "/contributions/{contributionId}": {
+      "schema": { "$ref": "#/entities/Contribution" },
+      "description": "Supporter contributions to creators and campaigns"
+    },
+    "/paymentTransactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/PaymentTransaction" },
+      "description": "Payment provider transaction records"
+    },
+    "/paymentAccounts/{accountId}": {
+      "schema": { "$ref": "#/entities/PaymentAccount" },
+      "description": "Creator bank accounts for receiving payouts"
+    },
+    "/payouts/{payoutId}": {
+      "schema": { "$ref": "#/entities/Payout" },
+      "description": "Creator withdrawal payouts"
+    },
+    "/ledgerEntries/{entryId}": {
+      "schema": { "$ref": "#/entities/LedgerEntry" },
+      "description": "Immutable double-entry financial ledger records"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "In-app alerts and notifications"
+    },
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/Report" },
+      "description": "Trust & safety moderation reports"
+    },
+    "/platformSettings/{settingsId}": {
+      "schema": { "$ref": "#/entities/PlatformSettings" },
+      "description": "Platform global configuration"
+    },
+    "/adminAuditLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AdminAuditLog" },
+      "description": "Admin actions audit trail"
+    }
+  }
+}
