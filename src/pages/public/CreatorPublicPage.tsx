@@ -292,7 +292,11 @@ export function CreatorPublicPage() {
                 )}
                 {creator.socialLinks?.github && (
                   <a
-                    href={creator.socialLinks.github.startsWith('http') ? creator.socialLinks.github : `https://github.com/${creator.socialLinks.github}`}
+                    href={
+                      creator.socialLinks.github.startsWith('http')
+                        ? creator.socialLinks.github
+                        : `https://github.com/${creator.socialLinks.github.replace(/^@/, '').replace(/^github\.com\//, '')}`
+                    }
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 hover:text-gray-900 font-medium"

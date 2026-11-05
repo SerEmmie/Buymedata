@@ -10,6 +10,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { AdminLayout } from './components/layout/AdminLayout';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
 // Public pages
 import { HomePage } from './pages/public/HomePage';
@@ -198,10 +199,12 @@ function MainContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <RouterProvider>
-        <MainContent />
-      </RouterProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <RouterProvider>
+          <MainContent />
+        </RouterProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
