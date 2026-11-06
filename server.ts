@@ -3,7 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { paystackClient } from './src/server/paystack';
+import { bachsClient } from './src/server/bachs';
 import { verifyAndFinalizePayment } from './src/server/ledger';
 import { processServerPayout, calculateServerCreatorBalance } from './src/server/payouts';
 
@@ -37,15 +37,15 @@ app.get('/api/health', (_req: Request, res: Response) => {
     status: 'ok',
     app: 'BuyMeData',
     currency: 'NGN',
-    paymentProvider: 'paystack',
-    configured: paystackClient.hasValidKey(),
-    mode: paystackClient.getMode(),
+    paymentProvider: 'bachs',
+    configured: bachsClient.hasValidKey(),
+    mode: bachsClient.getMode(),
     timestamp: new Date().toISOString(),
   });
 });
 
 // -------------------------------------------------------------
-// 2. PAYMENT INITIALIZATION (PAYSTACK)
+// 2. PAYMENT INITIALIZATION (BACHS.IO CHECKOUT SESSIONS)
 // -------------------------------------------------------------
 app.post('/api/payments/initialize', async (req: Request, res: Response) => {
   try {
@@ -61,7 +61,7 @@ app.post('/api/payments/initialize', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Minimum contribution amount is ₦200.' });
     }
 
-    const paystackRes = await paystackClient.initializeTransaction({
+    const bachsRes = await bachsClient.createCheckoutSession({
       email,
       amount,
       reference,
@@ -71,8 +71,15 @@ app.post('/api/payments/initialize', async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
-      data: paystackRes.data,
-      mode: paystackClient.getMode(),
+      data: {
+        id: bachsRes.data.id,
+        reference: bachsRes.data.reference,
+        checkout_url: bachsRes.data.checkout_url,
+        authorization_url: bachsRes.data.checkout_url, // For seamless frontend backward-compatibility
+        access_code: bachsRes.data.id,
+        status: bachsRes.data.status,
+      },
+      mode: bachsClient.getMode(),
     });
   } catch (err) {
     console.error('Payment initialization error:', err);
@@ -104,41 +111,58 @@ app.all(['/api/payments/verify/:reference', '/api/payments/verify'], async (req:
 });
 
 // -------------------------------------------------------------
-// 4. SIGNED WEBHOOK HANDLING (PAYSTACK)
+// 4. SIGNED WEBHOOK HANDLING (BACHS.IO)
 // -------------------------------------------------------------
 app.post('/api/payments/webhook', async (req: any, res: Response) => {
   try {
-    const signature = req.headers['x-paystack-signature'] as string;
+    const bachsSig = (req.headers['x-bachs-signature'] || req.headers['x-paystack-signature']) as string;
+    const bachsTimestamp = req.headers['x-bachs-timestamp'] as string;
+    const bachsSigV2 = req.headers['x-bachs-signature-v2'] as string;
     const isTestSimulator = req.headers['x-buymedata-test-webhook'] === 'true';
 
-    // Signature verification
-    if (paystackClient.hasValidKey()) {
-      const isValid = paystackClient.verifyWebhookSignature(req.rawBody || JSON.stringify(req.body), signature);
+    // Signature verification with HMAC-SHA256
+    if (bachsClient.hasValidKey()) {
+      const isValid = bachsClient.verifyWebhookSignature(
+        req.rawBody || JSON.stringify(req.body),
+        bachsSig,
+        bachsTimestamp,
+        bachsSigV2
+      );
       if (!isValid && !isTestSimulator) {
-        console.warn('Unauthorized webhook rejected: Invalid Paystack HMAC SHA512 signature.');
+        console.warn('Unauthorized webhook rejected: Invalid Bachs HMAC-SHA256 signature.');
         return res.status(401).send('Invalid signature');
       }
     }
 
     const event = req.body;
-    const eventType = event?.event;
+    const eventType = event?.event || event?.type;
 
-    console.log(`[Paystack Webhook] Received event: ${eventType} (ref: ${event?.data?.reference})`);
+    console.log(`[Bachs Webhook] Received event: ${eventType} (ref: ${event?.data?.reference || event?.reference || event?.data?.id})`);
 
-    // Handle charge.success: Finalize contribution idempotently
-    if (eventType === 'charge.success') {
-      const reference = event.data?.reference;
+    // Handle collection.succeeded, checkout.completed, or charge.success: Finalize contribution idempotently
+    if (
+      eventType === 'collection.succeeded' ||
+      eventType === 'checkout.completed' ||
+      eventType === 'charge.success' ||
+      eventType === 'payment.succeeded'
+    ) {
+      const reference =
+        event?.data?.reference ||
+        event?.reference ||
+        event?.data?.metadata?.reference ||
+        event?.data?.id;
+
       if (reference) {
         try {
           const settlement = await verifyAndFinalizePayment(reference);
-          console.log(`[Paystack Webhook] Settled payment for reference ${reference}:`, settlement);
+          console.log(`[Bachs Webhook] Settled payment for reference ${reference}:`, settlement);
         } catch (settleErr) {
-          console.error(`[Paystack Webhook] Settlement failed for ${reference}:`, settleErr);
+          console.error(`[Bachs Webhook] Settlement failed for ${reference}:`, settleErr);
         }
       }
     }
 
-    // Always acknowledge receipt to Paystack with 200 OK
+    // Always acknowledge receipt to Bachs with 200 OK
     return res.status(200).json({ received: true });
   } catch (err) {
     console.error('Webhook processing exception:', err);
@@ -151,7 +175,7 @@ app.post('/api/payments/webhook', async (req: any, res: Response) => {
 // -------------------------------------------------------------
 app.get('/api/banks', async (_req: Request, res: Response) => {
   try {
-    const banks = await paystackClient.getBanks();
+    const banks = await bachsClient.getBanks();
     return res.json({ success: true, data: banks });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to retrieve banks.' });
@@ -165,11 +189,11 @@ app.post('/api/banks/resolve', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Account number and bank code are required.' });
     }
 
-    const resolveRes = await paystackClient.resolveAccountNumber(accountNumber, bankCode);
+    const resolveRes = await bachsClient.resolveAccountNumber(accountNumber, bankCode);
     return res.json({
       success: true,
-      accountName: resolveRes.data.account_name,
-      accountNumber: resolveRes.data.account_number,
+      accountName: resolveRes.accountName,
+      accountNumber: resolveRes.accountNumber,
     });
   } catch (err) {
     console.error('Account resolution error:', err);
@@ -244,7 +268,7 @@ async function startServer() {
 
   app.listen(PORT, () => {
     console.log(`🚀 BuyMeData full-stack server running on http://localhost:${PORT}`);
-    console.log(`💳 Paystack Provider Mode: ${paystackClient.getMode().toUpperCase()}`);
+    console.log(`💳 Bachs.io Provider Mode: ${bachsClient.getMode().toUpperCase()}`);
   });
 }
 

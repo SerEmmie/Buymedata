@@ -101,7 +101,7 @@ export async function initializeContribution(data: {
   const transactionRecord: PaymentTransaction = {
     id: transactionId,
     contributionId,
-    provider: 'sandbox',
+    provider: 'bachs',
     providerReference: `BMD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
     amount: data.amount,
     currency: data.currency || 'NGN',
@@ -124,9 +124,9 @@ export async function initializeContribution(data: {
 }
 
 /**
- * Initializes a payment transaction on the backend Paystack API.
+ * Initializes a payment checkout session on the backend Bachs.io API.
  */
-export async function initializePaystackPayment(params: {
+export async function initializeBachsPayment(params: {
   email: string;
   amount: number;
   reference: string;
@@ -134,6 +134,7 @@ export async function initializePaystackPayment(params: {
   metadata?: Record<string, unknown>;
 }): Promise<{
   success: boolean;
+  checkoutUrl?: string;
   authorizationUrl?: string;
   accessCode?: string;
   reference: string;
@@ -155,8 +156,9 @@ export async function initializePaystackPayment(params: {
 
     return {
       success: true,
-      authorizationUrl: data.data?.authorization_url,
-      accessCode: data.data?.access_code,
+      checkoutUrl: data.data?.checkout_url || data.data?.authorization_url,
+      authorizationUrl: data.data?.authorization_url || data.data?.checkout_url,
+      accessCode: data.data?.access_code || data.data?.id,
       reference: data.data?.reference || params.reference,
       mode: data.mode || 'test',
     };
@@ -165,6 +167,11 @@ export async function initializePaystackPayment(params: {
     throw err;
   }
 }
+
+/**
+ * Backward-compatible alias for initializeBachsPayment
+ */
+export const initializePaystackPayment = initializeBachsPayment;
 
 /**
  * Strictly verifies a transaction on the server.

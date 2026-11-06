@@ -175,7 +175,7 @@ export function PayoutsPage() {
   };
 
   // Test webhook simulator for testing payout and charge events
-  const handleTestWebhookSimulation = async (eventType: 'charge.success' | 'transfer.success') => {
+  const handleTestWebhookSimulation = async (eventType: 'collection.succeeded' | 'checkout.completed' | 'payout.succeeded' | 'charge.success') => {
     setTestSimulating(true);
     setTestResult(null);
     try {
@@ -184,7 +184,8 @@ export function PayoutsPage() {
         data: {
           id: Math.floor(Math.random() * 900000),
           reference: payouts[0]?.providerReference || `BMD-TEST-${Date.now()}`,
-          amount: 500000,
+          amount: 5000, // ₦5,000 NGN
+          currency: 'NGN',
           status: 'success',
           paid_at: new Date().toISOString(),
         },
@@ -194,7 +195,7 @@ export function PayoutsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-paystack-signature': 'simulated_test_signature',
+          'x-bachs-signature': 'simulated_test_signature',
           'x-buymedata-test-webhook': 'true',
         },
         body: JSON.stringify(payload),
@@ -222,7 +223,7 @@ export function PayoutsPage() {
             <span>Payouts & Bank Transfers</span>
           </h1>
           <p className="text-xs text-gray-500">
-            Automated Paystack transfer settlements to verified Nigerian commercial bank accounts.
+            Automated Bachs.io transfer settlements to verified Nigerian commercial bank accounts.
           </p>
         </div>
 
@@ -257,7 +258,7 @@ export function PayoutsPage() {
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
               <FlaskConical className="w-4 h-4 text-[#6741D9]" />
-              <span>Paystack Infrastructure & Webhook Test Suite</span>
+              <span>Bachs.io Infrastructure & Webhook Test Suite</span>
             </h4>
             <span className="text-[10px] font-mono text-indigo-700 bg-indigo-100/70 px-2 py-0.5 rounded-md font-bold">
               Sandbox Active
@@ -265,26 +266,26 @@ export function PayoutsPage() {
           </div>
 
           <p className="text-xs text-indigo-900/80 leading-relaxed">
-            Test the automated Paystack webhook dispatch and server verification pipeline. Signed webhook delivery, idempotency checks, and double-entry ledger settlements can be validated below without real money.
+            Test the automated Bachs.io webhook dispatch and server verification pipeline. Signed HMAC-SHA256 delivery, idempotency checks, and double-entry ledger settlements can be validated below without real money.
           </p>
 
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <button
-              onClick={() => handleTestWebhookSimulation('charge.success')}
+              onClick={() => handleTestWebhookSimulation('collection.succeeded')}
               disabled={testSimulating}
               className="px-3 py-1.5 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1"
             >
               {testSimulating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-              <span>Simulate `charge.success` Webhook</span>
+              <span>Simulate `collection.succeeded` Webhook</span>
             </button>
 
             <button
-              onClick={() => handleTestWebhookSimulation('transfer.success')}
+              onClick={() => handleTestWebhookSimulation('payout.succeeded')}
               disabled={testSimulating}
               className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1"
             >
               {testSimulating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-              <span>Simulate `transfer.success` Payout</span>
+              <span>Simulate `payout.succeeded` Payout</span>
             </button>
           </div>
 
@@ -327,7 +328,7 @@ export function PayoutsPage() {
                 <p className="text-xs font-mono text-gray-500 mt-0.5">{account.maskedAccountNumber}</p>
                 <p className="text-xs font-semibold text-gray-700 mt-1 truncate">{account.accountName}</p>
                 <div className="pt-2 flex items-center gap-1 text-[11px] text-emerald-700 font-bold">
-                  <ShieldCheck className="w-3.5 h-3.5" /> Paystack NUBAN Verified
+                  <ShieldCheck className="w-3.5 h-3.5" /> Bachs NUBAN Verified
                 </div>
               </div>
             ) : (

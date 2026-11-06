@@ -110,7 +110,7 @@ export interface Contribution {
   createdAt: string;
 }
 
-export type PaymentProvider = 'paystack' | 'flutterwave' | 'sandbox';
+export type PaymentProvider = 'bachs' | 'paystack' | 'flutterwave' | 'sandbox';
 
 export interface PaymentTransaction {
   id: string;

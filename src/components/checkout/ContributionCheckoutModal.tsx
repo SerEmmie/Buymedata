@@ -19,7 +19,7 @@ import {
 import { CreatorProfile, Campaign, Contribution } from '../../types';
 import {
   initializeContribution,
-  initializePaystackPayment,
+  initializeBachsPayment,
   verifyPaymentOnServer,
 } from '../../services/paymentService';
 import { formatCurrency } from '../../utils/formatters';
@@ -113,8 +113,8 @@ export function ContributionCheckoutModal({
       setActiveContribution(contribution);
       setActiveRef(transactionRecord.providerReference);
 
-      // 2. Initialize Paystack transaction on backend
-      const initRes = await initializePaystackPayment({
+      // 2. Initialize Bachs checkout session on backend
+      const initRes = await initializeBachsPayment({
         email: supporterEmail,
         amount: currentAmount,
         reference: transactionRecord.providerReference,
@@ -127,10 +127,10 @@ export function ContributionCheckoutModal({
         },
       });
 
-      setGatewayAuthUrl(initRes.authorizationUrl || '');
+      setGatewayAuthUrl(initRes.checkoutUrl || initRes.authorizationUrl || '');
       setPaymentMode(initRes.mode);
 
-      // 3. Move to Paystack Gateway stage for user authorization
+      // 3. Move to Bachs Gateway stage for user authorization
       setStage('gateway');
     } catch (err) {
       console.error('Initialization error:', err);
@@ -424,21 +424,21 @@ export function ContributionCheckoutModal({
 
               <div className="flex items-center justify-center gap-2 text-[11px] text-gray-400">
                 <Lock className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Secured by Paystack • 256-bit SSL encryption</span>
+                <span>Secured by Bachs.io • 256-bit SSL encryption</span>
               </div>
             </form>
           )}
 
-          {/* Paystack Gateway Stage */}
+          {/* Bachs Gateway Stage */}
           {stage === 'gateway' && (
             <div className="space-y-5 animate-in fade-in duration-200">
-              {/* Paystack Brand Banner */}
+              {/* Bachs Brand Banner */}
               <div className="p-4 bg-gradient-to-r from-gray-900 to-slate-800 text-white rounded-2xl space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="text-xs font-black tracking-wider uppercase text-emerald-400">
-                      Paystack Secure Gateway
+                      Bachs.io Secure Gateway
                     </span>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white/20">
@@ -464,7 +464,7 @@ export function ContributionCheckoutModal({
                       <span>Card Checkout Simulated in Sandbox</span>
                     </p>
                     <p className="text-gray-600 text-[11px] leading-relaxed">
-                      Standard Paystack test card: <span className="font-mono font-bold text-gray-900">4084 0840 8408 4084</span> (CVV: 408, PIN: 3310).
+                      Standard Bachs test card: <span className="font-mono font-bold text-gray-900">4084 0840 8408 4084</span> (CVV: 408, PIN: 3310).
                     </p>
                   </div>
                 )}
@@ -473,10 +473,10 @@ export function ContributionCheckoutModal({
                   <div className="space-y-1.5">
                     <p className="font-bold text-gray-800 flex items-center gap-1.5">
                       <Building className="w-4 h-4 text-[#6741D9]" />
-                      <span>Bank Transfer (Paystack Titan NUBAN)</span>
+                      <span>Bank Transfer (Bachs Virtual NUBAN)</span>
                     </p>
                     <p className="text-gray-600 text-[11px] leading-relaxed">
-                      Virtual Account: <span className="font-mono font-bold text-gray-900">9920184712</span> • Bank: Paystack Titan.
+                      Virtual Account: <span className="font-mono font-bold text-gray-900">9920184712</span> • Bank: Bachs Virtual Settlement.
                     </p>
                   </div>
                 )}
@@ -531,7 +531,7 @@ export function ContributionCheckoutModal({
                 <Lock className="w-6 h-6 text-[#6741D9] absolute inset-0 m-auto" />
               </div>
               <div className="space-y-1">
-                <h4 className="font-bold text-gray-900 text-base">Verifying with Paystack Backend</h4>
+                <h4 className="font-bold text-gray-900 text-base">Verifying with Bachs.io Backend</h4>
                 <p className="text-xs text-gray-500 max-w-xs">
                   Server is validating cryptographic response, enforcing idempotency, and committing double-entry ledger entries...
                 </p>
@@ -556,7 +556,7 @@ export function ContributionCheckoutModal({
               {/* Verified Receipt Details */}
               <div className="w-full bg-gray-50 p-4 rounded-xl border border-gray-100 text-xs text-left space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Paystack Reference:</span>
+                  <span className="text-gray-500">Bachs Reference:</span>
                   <button
                     onClick={copyReference}
                     className="font-mono text-gray-800 flex items-center gap-1 hover:text-[#6741D9]"

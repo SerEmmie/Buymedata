@@ -49,7 +49,7 @@ export async function savePaymentAccount(accountData: {
   const account: PaymentAccount = {
     id,
     userId: accountData.userId,
-    provider: 'paystack_bank',
+    provider: 'bachs',
     bankName: accountData.bankName,
     bankCode: accountData.bankCode,
     maskedAccountNumber,

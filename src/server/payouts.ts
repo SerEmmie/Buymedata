@@ -10,7 +10,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
-import { paystackClient } from './paystack';
+import { bachsClient } from './bachs';
 import { Payout, PaymentAccount, LedgerEntry, User } from '../types';
 
 export interface CreatorBalanceSummary {
@@ -118,25 +118,20 @@ export async function processServerPayout(params: {
   }
   const paymentAccount = accountSnap.data() as PaymentAccount;
 
-  // 5. Create / Fetch Paystack Transfer Recipient
-  const recipientRes = await paystackClient.createTransferRecipient({
-    accountName: paymentAccount.accountName,
-    accountNumber: paymentAccount.accountNumber || paymentAccount.maskedAccountNumber.replace(/\D/g, ''),
-    bankCode: paymentAccount.bankCode,
-  });
-
-  const recipientCode = recipientRes.data.recipient_code;
-
-  // 6. Generate reference & initiate Paystack Transfer
+  // 5. Initiate Bachs Payout (POST /v1/payouts)
   const payoutId = `pyo_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
   const transferRef = `BMD-TRF-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
   const now = new Date().toISOString();
-  const fee = 50; // Standard ₦50 NIP transfer fee
+  const fee = 50; // Standard ₦50 transfer fee
   const netAmount = amount - fee;
 
-  const transferRes = await paystackClient.initiateTransfer({
+  const rawAccountNumber = paymentAccount.accountNumber || paymentAccount.maskedAccountNumber.replace(/\D/g, '');
+
+  const transferRes = await bachsClient.createPayout({
     amount: netAmount,
-    recipientCode,
+    accountNumber: rawAccountNumber,
+    bankCode: paymentAccount.bankCode,
+    accountName: paymentAccount.accountName,
     reason: `BuyMeData creator withdrawal (${creatorId})`,
     reference: transferRef,
   });
@@ -144,7 +139,7 @@ export async function processServerPayout(params: {
   const transferStatus = transferRes.data.status;
   const isSuccessful = transferStatus === 'success';
 
-  // 7. Atomic Database Commit: Payout record + Double-entry ledger entries
+  // 6. Atomic Database Commit: Payout record + Double-entry ledger entries
   const payout: Payout = {
     id: payoutId,
     creatorId,
@@ -211,7 +206,7 @@ export async function processServerPayout(params: {
     title: isSuccessful ? '💸 Payout Disbursed!' : '⏳ Payout Processing',
     message: isSuccessful
       ? `Your withdrawal of ₦${netAmount.toLocaleString()} has been sent to your ${paymentAccount.bankName} account.`
-      : `Your withdrawal of ₦${netAmount.toLocaleString()} is processing via Paystack transfers.`,
+      : `Your withdrawal of ₦${netAmount.toLocaleString()} is processing via Bachs transfers.`,
     type: 'payout_processed',
     read: false,
     relatedResourceId: payoutId,
