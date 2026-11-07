@@ -149,7 +149,7 @@ export function ContributionsListPage() {
             placeholder="Search by supporter name, email, campaign, or message..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+            className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
           />
         </div>
 
@@ -170,7 +170,7 @@ export function ContributionsListPage() {
       <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-xs">
         {loading ? (
           <div className="py-16 flex flex-col items-center justify-center space-y-2">
-            <Loader2 className="w-8 h-8 animate-spin text-[#6741D9]" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#F22550]" />
             <p className="text-xs text-gray-400">Loading contributions log...</p>
           </div>
         ) : filtered.length === 0 ? (
@@ -222,7 +222,7 @@ export function ContributionsListPage() {
                     </td>
                     <td className="p-4">
                       {c.campaignTitle ? (
-                        <span className="font-medium text-[#6741D9] max-w-[180px] truncate block flex items-center gap-1">
+                        <span className="font-medium text-[#F22550] max-w-[180px] truncate block flex items-center gap-1">
                           <Flame className="w-3 h-3 flex-shrink-0" />
                           <span className="truncate">{c.campaignTitle}</span>
                         </span>
@@ -260,7 +260,7 @@ export function ContributionsListPage() {
                           e.stopPropagation();
                           setSelectedContribution(c);
                         }}
-                        className="text-xs font-semibold text-[#6741D9] hover:underline"
+                        className="text-xs font-semibold text-[#F22550] hover:underline"
                       >
                         View
                       </button>
@@ -279,7 +279,7 @@ export function ContributionsListPage() {
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl">
             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-xl bg-[#F0EBFF] text-[#6741D9] flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-xl bg-[#FFE6EA] text-[#F22550] flex items-center justify-center font-bold">
                   ₦
                 </div>
                 <div>
@@ -338,7 +338,7 @@ export function ContributionsListPage() {
                   <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
                     Supporter Message
                   </span>
-                  <div className="bg-[#F0EBFF]/30 p-3 rounded-xl border border-[#6741D9]/15 text-xs text-gray-800 italic leading-relaxed">
+                  <div className="bg-[#FFE6EA]/30 p-3 rounded-xl border border-[#F22550]/15 text-xs text-gray-800 italic leading-relaxed">
                     "{selectedContribution.message}"
                   </div>
                 </div>

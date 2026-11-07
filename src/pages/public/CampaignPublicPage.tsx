@@ -139,7 +139,7 @@ export function CampaignPublicPage() {
   if (loading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-4">
-        <div className="w-12 h-12 rounded-full border-4 border-[#6741D9]/20 border-t-[#6741D9] animate-spin" />
+        <div className="w-12 h-12 rounded-full border-4 border-[#F22550]/20 border-t-[#F22550] animate-spin" />
         <p className="text-xs text-gray-400 font-medium">Loading campaign details...</p>
       </div>
     );
@@ -157,7 +157,7 @@ export function CampaignPublicPage() {
         </p>
         <Link
           to={`/${username}`}
-          className="mt-6 px-5 py-2.5 bg-[#6741D9] hover:bg-[#5633C4] text-white font-semibold text-xs rounded-xl transition-colors"
+          className="mt-6 px-5 py-2.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-semibold text-xs rounded-xl transition-colors"
         >
           Back to @{username}'s Profile
         </Link>
@@ -189,7 +189,7 @@ export function CampaignPublicPage() {
       <div className="flex items-center justify-between">
         <Link
           to={`/${creator.username}`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-[#6741D9] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-[#F22550] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to @{creator.username}'s Profile</span>
@@ -314,12 +314,12 @@ export function CampaignPublicPage() {
                     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'
                   }
                   alt={creator.displayName}
-                  className="w-11 h-11 rounded-full object-cover ring-2 ring-[#6741D9]/20"
+                  className="w-11 h-11 rounded-full object-cover ring-2 ring-[#F22550]/20"
                 />
                 <div>
-                  <h4 className="font-bold text-gray-900 text-sm group-hover:text-[#6741D9] transition-colors flex items-center gap-1.5">
+                  <h4 className="font-bold text-gray-900 text-sm group-hover:text-[#F22550] transition-colors flex items-center gap-1.5">
                     <span>{creator.displayName}</span>
-                    <ShieldCheck className="w-4 h-4 text-[#6741D9]" />
+                    <ShieldCheck className="w-4 h-4 text-[#F22550]" />
                   </h4>
                   <p className="text-xs text-gray-400">Campaign Organizer • @{creator.username}</p>
                 </div>
@@ -338,7 +338,7 @@ export function CampaignPublicPage() {
               onClick={() => setActiveTab('story')}
               className={`pb-3 px-4 text-xs font-bold border-b-2 transition-all ${
                 activeTab === 'story'
-                  ? 'border-[#6741D9] text-[#6741D9]'
+                  ? 'border-[#F22550] text-[#F22550]'
                   : 'border-transparent text-gray-500 hover:text-gray-900'
               }`}
             >
@@ -348,7 +348,7 @@ export function CampaignPublicPage() {
               onClick={() => setActiveTab('updates')}
               className={`pb-3 px-4 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 ${
                 activeTab === 'updates'
-                  ? 'border-[#6741D9] text-[#6741D9]'
+                  ? 'border-[#F22550] text-[#F22550]'
                   : 'border-transparent text-gray-500 hover:text-gray-900'
               }`}
             >
@@ -361,7 +361,7 @@ export function CampaignPublicPage() {
               onClick={() => setActiveTab('backers')}
               className={`pb-3 px-4 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 ${
                 activeTab === 'backers'
-                  ? 'border-[#6741D9] text-[#6741D9]'
+                  ? 'border-[#F22550] text-[#F22550]'
                   : 'border-transparent text-gray-500 hover:text-gray-900'
               }`}
             >
@@ -376,8 +376,8 @@ export function CampaignPublicPage() {
           {activeTab === 'story' && (
             <div className="space-y-6">
               {/* Summary Callout */}
-              <div className="bg-[#F0EBFF]/40 rounded-2xl p-5 border border-[#6741D9]/15">
-                <p className="text-sm font-semibold text-[#5633C4] leading-relaxed">
+              <div className="bg-[#FFE6EA]/40 rounded-2xl p-5 border border-[#F22550]/15">
+                <p className="text-sm font-semibold text-[#D81A43] leading-relaxed">
                   "{campaign.summary}"
                 </p>
               </div>
@@ -425,7 +425,7 @@ export function CampaignPublicPage() {
                     >
                       <div className="flex justify-between items-baseline">
                         <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-full bg-[#F0EBFF] text-[#6741D9] font-bold text-xs flex items-center justify-center">
+                          <span className="w-6 h-6 rounded-full bg-[#FFE6EA] text-[#F22550] font-bold text-xs flex items-center justify-center">
                             #{updates.length - idx}
                           </span>
                           <h4 className="font-bold text-gray-900 text-base">{upd.title}</h4>
@@ -475,11 +475,11 @@ export function CampaignPublicPage() {
                   {verifiedContributions.map((c) => (
                     <div
                       key={c.id}
-                      className="bg-white rounded-2xl border border-gray-100 p-4 space-y-2 shadow-xs hover:border-[#6741D9]/20 transition-colors"
+                      className="bg-white rounded-2xl border border-gray-100 p-4 space-y-2 shadow-xs hover:border-[#F22550]/20 transition-colors"
                     >
                       <div className="flex justify-between items-center text-xs">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6741D9] to-indigo-500 text-white flex items-center justify-center font-bold text-xs">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#F22550] to-indigo-500 text-white flex items-center justify-center font-bold text-xs">
                             {c.anonymous ? '?' : c.supporterName.slice(0, 1).toUpperCase()}
                           </div>
                           <div>
@@ -492,7 +492,7 @@ export function CampaignPublicPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="font-black text-sm text-[#6741D9] bg-[#F0EBFF] px-2.5 py-1 rounded-lg">
+                          <span className="font-black text-sm text-[#F22550] bg-[#FFE6EA] px-2.5 py-1 rounded-lg">
                             {formatCurrency(c.amount)}
                           </span>
                         </div>
@@ -517,10 +517,10 @@ export function CampaignPublicPage() {
             {/* Amount & Goal */}
             <div className="space-y-3">
               <div className="flex justify-between items-baseline">
-                <span className="text-3xl font-black text-[#6741D9]">
+                <span className="text-3xl font-black text-[#F22550]">
                   {formatCurrency(verifiedAmount)}
                 </span>
-                <span className="text-xs font-bold text-[#6741D9] bg-[#F0EBFF] px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-[#F22550] bg-[#FFE6EA] px-2 py-0.5 rounded-md">
                   {progress}%
                 </span>
               </div>
@@ -531,7 +531,7 @@ export function CampaignPublicPage() {
               {/* Progress Bar */}
               <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#6741D9] to-indigo-500 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-[#F22550] to-indigo-500 rounded-full transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -557,7 +557,7 @@ export function CampaignPublicPage() {
             {canContribute ? (
               <button
                 onClick={() => setIsCheckoutOpen(true)}
-                className="w-full py-4 px-4 bg-[#6741D9] hover:bg-[#5633C4] text-white font-black text-sm rounded-2xl shadow-md shadow-[#6741D9]/25 hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 px-4 bg-[#F22550] hover:bg-[#D81A43] text-white font-black text-sm rounded-2xl shadow-md shadow-[#F22550]/25 hover:shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <Heart className="w-4 h-4 fill-white" />
                 <span>Back this Campaign</span>
@@ -648,7 +648,7 @@ export function CampaignPublicPage() {
                   <select
                     value={reportReason}
                     onChange={(e) => setReportReason(e.target.value)}
-                    className="w-full p-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                    className="w-full p-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                   >
                     <option value="Misrepresentation of funds">Misrepresentation of funds or goals</option>
                     <option value="Fraudulent campaign">Fraudulent campaign</option>
@@ -664,7 +664,7 @@ export function CampaignPublicPage() {
                     placeholder="Describe the issue with this campaign..."
                     value={reportDesc}
                     onChange={(e) => setReportDesc(e.target.value)}
-                    className="w-full p-2.5 text-xs rounded-xl border border-gray-200 resize-none focus:outline-none focus:border-[#6741D9]"
+                    className="w-full p-2.5 text-xs rounded-xl border border-gray-200 resize-none focus:outline-none focus:border-[#F22550]"
                   />
                 </div>
                 <button

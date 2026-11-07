@@ -13,7 +13,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// AI Studio requires the server to run strictly on port 3000.
+// Cloud container environment sets PORT=8080 for ingress proxy, so we must bind explicitly to 3000.
+const PORT = 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Enable CORS for frontend and external webhooks
@@ -266,8 +268,8 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, () => {
-    console.log(`🚀 BuyMeData full-stack server running on http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 BuyMeData full-stack server running on http://0.0.0.0:${PORT}`);
     console.log(`💳 Bachs.io Provider Mode: ${bachsClient.getMode().toUpperCase()}`);
   });
 }

@@ -191,7 +191,7 @@ export function CampaignEditorPage() {
   if (fetchingCampaign) {
     return (
       <div className="max-w-3xl mx-auto py-16 flex flex-col items-center justify-center space-y-3">
-        <Loader2 className="w-8 h-8 animate-spin text-[#6741D9]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#F22550]" />
         <p className="text-xs text-gray-500 font-medium">Loading campaign details...</p>
       </div>
     );
@@ -232,7 +232,7 @@ export function CampaignEditorPage() {
             href={`/${creatorProfile.username}/campaigns/${slug}`}
             target="_blank"
             rel="noreferrer"
-            className="text-xs font-semibold text-[#6741D9] hover:underline flex items-center gap-1"
+            className="text-xs font-semibold text-[#F22550] hover:underline flex items-center gap-1"
           >
             <Eye className="w-3.5 h-3.5" /> View Public Page
           </a>
@@ -297,7 +297,7 @@ export function CampaignEditorPage() {
               placeholder="e.g. Solar Power & Starlink Setup for Youth Code Camp"
               value={title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
             />
           </div>
 
@@ -318,7 +318,7 @@ export function CampaignEditorPage() {
                   step={1000}
                   value={targetAmount}
                   onChange={(e) => setTargetAmount(Number(e.target.value) || 0)}
-                  className="w-full pl-8 pr-3.5 py-2.5 text-xs font-bold rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full pl-8 pr-3.5 py-2.5 text-xs font-bold rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
               </div>
 
@@ -331,7 +331,7 @@ export function CampaignEditorPage() {
                     onClick={() => setTargetAmount(amt)}
                     className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
                       targetAmount === amt
-                        ? 'bg-[#6741D9] text-white border-[#6741D9]'
+                        ? 'bg-[#F22550] text-white border-[#F22550]'
                         : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
                     }`}
                   >
@@ -348,7 +348,7 @@ export function CampaignEditorPage() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
               >
                 <option value="Technology">Technology & Hardware</option>
                 <option value="Education">Education & Courses</option>
@@ -373,7 +373,7 @@ export function CampaignEditorPage() {
               placeholder="Brief 1-sentence overview that appears on preview cards"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
             />
           </div>
 
@@ -388,7 +388,7 @@ export function CampaignEditorPage() {
               placeholder="Explain the background, why funding is critical, and a transparent itemized list of how the money will be spent..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-3.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9] resize-none"
+              className="w-full p-3.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550] resize-none"
             />
           </div>
 
@@ -403,7 +403,7 @@ export function CampaignEditorPage() {
                 placeholder="Paste image URL (or pick a preset below)"
                 value={coverImage}
                 onChange={(e) => setCoverImage(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
               />
               <div className="flex items-center gap-2">
                 <span className="text-[11px] text-gray-400">Themes:</span>
@@ -415,7 +415,7 @@ export function CampaignEditorPage() {
                       onClick={() => setCoverImage(p.url)}
                       className={`h-7 px-2.5 text-[11px] font-semibold rounded-lg border transition-all ${
                         coverImage === p.url
-                          ? 'border-[#6741D9] bg-[#F0EBFF] text-[#6741D9]'
+                          ? 'border-[#F22550] bg-[#FFE6EA] text-[#F22550]'
                           : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                       }`}
                     >
@@ -437,7 +437,7 @@ export function CampaignEditorPage() {
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
               />
               <div className="flex gap-1.5 mt-2">
                 <button
@@ -480,7 +480,7 @@ export function CampaignEditorPage() {
               <select
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value as any)}
-                className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
               >
                 <option value="public">Public (Shown on your page & featured)</option>
                 <option value="unlisted">Unlisted (Accessible only via direct link)</option>
@@ -511,7 +511,7 @@ export function CampaignEditorPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 w-full py-3.5 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="flex-1 w-full py-3.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>

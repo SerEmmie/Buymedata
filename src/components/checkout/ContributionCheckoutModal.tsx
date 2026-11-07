@@ -180,7 +180,7 @@ export function ContributionCheckoutModal({
         particleCount: 90,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ['#6741D9', '#8C68FF', '#09A552', '#FFD700'],
+        colors: ['#F22550', '#FF4D73', '#09A552', '#FFD700'],
       });
 
       if (onSuccess) {
@@ -210,7 +210,7 @@ export function ContributionCheckoutModal({
             <img
               src={creator.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
               alt={creator.displayName}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-[#6741D9]/20"
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-[#F22550]/20"
             />
             <div>
               <h3 className="font-bold text-gray-900 leading-tight">
@@ -248,8 +248,8 @@ export function ContributionCheckoutModal({
                         onClick={() => handleSelectPreset(amt)}
                         className={`py-2.5 px-1 text-center font-bold text-sm rounded-xl border transition-all ${
                           isSelected
-                            ? 'bg-[#6741D9] text-white border-[#6741D9] shadow-md shadow-[#6741D9]/25 scale-102'
-                            : 'bg-white text-gray-700 border-gray-200 hover:border-[#6741D9]/40 hover:bg-gray-50'
+                            ? 'bg-[#F22550] text-white border-[#F22550] shadow-md shadow-[#F22550]/25 scale-102'
+                            : 'bg-white text-gray-700 border-gray-200 hover:border-[#F22550]/40 hover:bg-gray-50'
                         }`}
                       >
                         {formatCurrency(amt)}
@@ -260,7 +260,7 @@ export function ContributionCheckoutModal({
 
                 {/* Custom amount toggle input */}
                 <div className="mt-2.5">
-                  <div className="relative rounded-xl border border-gray-200 focus-within:border-[#6741D9] focus-within:ring-2 focus-within:ring-[#6741D9]/20 overflow-hidden">
+                  <div className="relative rounded-xl border border-gray-200 focus-within:border-[#F22550] focus-within:ring-2 focus-within:ring-[#F22550]/20 overflow-hidden">
                     <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center font-bold text-gray-400">
                       ₦
                     </span>
@@ -288,7 +288,7 @@ export function ContributionCheckoutModal({
                     placeholder="e.g. Samuel Ade"
                     value={supporterName}
                     onChange={(e) => setSupporterName(e.target.value)}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9] focus:ring-1 focus:ring-[#6741D9] disabled:bg-gray-100 disabled:text-gray-400"
+                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550] focus:ring-1 focus:ring-[#F22550] disabled:bg-gray-100 disabled:text-gray-400"
                   />
                 </div>
                 <div>
@@ -301,7 +301,7 @@ export function ContributionCheckoutModal({
                     placeholder="you@email.com"
                     value={supporterEmail}
                     onChange={(e) => setSupporterEmail(e.target.value)}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9] focus:ring-1 focus:ring-[#6741D9]"
+                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550] focus:ring-1 focus:ring-[#F22550]"
                   />
                 </div>
               </div>
@@ -317,7 +317,7 @@ export function ContributionCheckoutModal({
                   placeholder="Keep up the inspiring work! Data on me."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9] focus:ring-1 focus:ring-[#6741D9] resize-none"
+                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550] focus:ring-1 focus:ring-[#F22550] resize-none"
                 />
               </div>
 
@@ -328,7 +328,7 @@ export function ContributionCheckoutModal({
                     type="checkbox"
                     checked={anonymous}
                     onChange={(e) => setAnonymous(e.target.checked)}
-                    className="rounded text-[#6741D9] focus:ring-[#6741D9] w-4 h-4"
+                    className="rounded text-[#F22550] focus:ring-[#F22550] w-4 h-4"
                   />
                   <span>Make contribution anonymous (hide my name publicly)</span>
                 </label>
@@ -338,7 +338,7 @@ export function ContributionCheckoutModal({
                     type="checkbox"
                     checked={publicMessage}
                     onChange={(e) => setPublicMessage(e.target.checked)}
-                    className="rounded text-[#6741D9] focus:ring-[#6741D9] w-4 h-4"
+                    className="rounded text-[#F22550] focus:ring-[#F22550] w-4 h-4"
                   />
                   <span>Display my supportive message on creator page</span>
                 </label>
@@ -355,7 +355,7 @@ export function ContributionCheckoutModal({
                     onClick={() => setPaymentMethod('card')}
                     className={`p-2.5 flex flex-col items-center gap-1 rounded-xl border text-xs font-medium transition-colors ${
                       paymentMethod === 'card'
-                        ? 'border-[#6741D9] bg-[#F0EBFF] text-[#6741D9]'
+                        ? 'border-[#F22550] bg-[#FFE6EA] text-[#F22550]'
                         : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -367,7 +367,7 @@ export function ContributionCheckoutModal({
                     onClick={() => setPaymentMethod('transfer')}
                     className={`p-2.5 flex flex-col items-center gap-1 rounded-xl border text-xs font-medium transition-colors ${
                       paymentMethod === 'transfer'
-                        ? 'border-[#6741D9] bg-[#F0EBFF] text-[#6741D9]'
+                        ? 'border-[#F22550] bg-[#FFE6EA] text-[#F22550]'
                         : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -379,7 +379,7 @@ export function ContributionCheckoutModal({
                     onClick={() => setPaymentMethod('ussd')}
                     className={`p-2.5 flex flex-col items-center gap-1 rounded-xl border text-xs font-medium transition-colors ${
                       paymentMethod === 'ussd'
-                        ? 'border-[#6741D9] bg-[#F0EBFF] text-[#6741D9]'
+                        ? 'border-[#F22550] bg-[#FFE6EA] text-[#F22550]'
                         : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -401,7 +401,7 @@ export function ContributionCheckoutModal({
                 </div>
                 <div className="pt-1.5 border-t border-gray-200 flex justify-between font-bold text-sm text-gray-900">
                   <span>Total to pay</span>
-                  <span className="text-[#6741D9]">{formatCurrency(currentAmount)}</span>
+                  <span className="text-[#F22550]">{formatCurrency(currentAmount)}</span>
                 </div>
               </div>
 
@@ -416,7 +416,7 @@ export function ContributionCheckoutModal({
               <button
                 type="submit"
                 disabled={currentAmount < 200}
-                className="w-full py-3.5 px-4 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-sm rounded-xl shadow-md shadow-[#6741D9]/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+                className="w-full py-3.5 px-4 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-sm rounded-xl shadow-md shadow-[#F22550]/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
               >
                 <Heart className="w-4 h-4 fill-white" />
                 Proceed to Pay {formatCurrency(currentAmount)}
@@ -460,7 +460,7 @@ export function ContributionCheckoutModal({
                 {paymentMethod === 'card' && (
                   <div className="space-y-1.5">
                     <p className="font-bold text-gray-800 flex items-center gap-1.5">
-                      <CreditCard className="w-4 h-4 text-[#6741D9]" />
+                      <CreditCard className="w-4 h-4 text-[#F22550]" />
                       <span>Card Checkout Simulated in Sandbox</span>
                     </p>
                     <p className="text-gray-600 text-[11px] leading-relaxed">
@@ -472,7 +472,7 @@ export function ContributionCheckoutModal({
                 {paymentMethod === 'transfer' && (
                   <div className="space-y-1.5">
                     <p className="font-bold text-gray-800 flex items-center gap-1.5">
-                      <Building className="w-4 h-4 text-[#6741D9]" />
+                      <Building className="w-4 h-4 text-[#F22550]" />
                       <span>Bank Transfer (Bachs Virtual NUBAN)</span>
                     </p>
                     <p className="text-gray-600 text-[11px] leading-relaxed">
@@ -484,7 +484,7 @@ export function ContributionCheckoutModal({
                 {paymentMethod === 'ussd' && (
                   <div className="space-y-1.5">
                     <p className="font-bold text-gray-800 flex items-center gap-1.5">
-                      <Smartphone className="w-4 h-4 text-[#6741D9]" />
+                      <Smartphone className="w-4 h-4 text-[#F22550]" />
                       <span>USSD Quick Dial</span>
                     </p>
                     <p className="text-gray-600 text-[11px] leading-relaxed">
@@ -506,7 +506,7 @@ export function ContributionCheckoutModal({
                 <button
                   type="button"
                   onClick={handleAuthorizePayment}
-                  className="w-full py-3.5 px-4 bg-[#6741D9] hover:bg-[#5633C4] text-white font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-4 bg-[#F22550] hover:bg-[#D81A43] text-white font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
                 >
                   <span>Authorize & Verify on Server</span>
                   <ArrowRight className="w-4 h-4" />
@@ -527,8 +527,8 @@ export function ContributionCheckoutModal({
           {stage === 'processing' && (
             <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in">
               <div className="relative">
-                <div className="w-16 h-16 rounded-full border-4 border-[#F0EBFF] border-t-[#6741D9] animate-spin" />
-                <Lock className="w-6 h-6 text-[#6741D9] absolute inset-0 m-auto" />
+                <div className="w-16 h-16 rounded-full border-4 border-[#FFE6EA] border-t-[#F22550] animate-spin" />
+                <Lock className="w-6 h-6 text-[#F22550] absolute inset-0 m-auto" />
               </div>
               <div className="space-y-1">
                 <h4 className="font-bold text-gray-900 text-base">Verifying with Bachs.io Backend</h4>
@@ -549,7 +549,7 @@ export function ContributionCheckoutModal({
                 <h3 className="font-extrabold text-xl text-gray-900">Payment Confirmed & Settled!</h3>
                 <p className="text-sm text-gray-600 mt-1">
                   Thank you! You just supported <span className="font-semibold text-gray-900">{creator.displayName}</span> with{' '}
-                  <span className="font-bold text-[#6741D9]">{formatCurrency(completedContrib.amount)}</span>.
+                  <span className="font-bold text-[#F22550]">{formatCurrency(completedContrib.amount)}</span>.
                 </p>
               </div>
 
@@ -559,7 +559,7 @@ export function ContributionCheckoutModal({
                   <span className="text-gray-500">Bachs Reference:</span>
                   <button
                     onClick={copyReference}
-                    className="font-mono text-gray-800 flex items-center gap-1 hover:text-[#6741D9]"
+                    className="font-mono text-gray-800 flex items-center gap-1 hover:text-[#F22550]"
                   >
                     {activeRef || completedContrib.id}
                     {copiedRef ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -589,7 +589,7 @@ export function ContributionCheckoutModal({
 
               <button
                 onClick={onClose}
-                className="w-full py-3 bg-[#6741D9] text-white font-bold text-sm rounded-xl hover:bg-[#5633C4] transition-colors"
+                className="w-full py-3 bg-[#F22550] text-white font-bold text-sm rounded-xl hover:bg-[#D81A43] transition-colors"
               >
                 Done
               </button>

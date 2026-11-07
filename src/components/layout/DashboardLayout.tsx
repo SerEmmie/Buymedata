@@ -25,6 +25,8 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
+import { BrandLogo } from '../ui/BrandLogo';
+
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { userProfile, creatorProfile, isAdmin, isSuspended, logout } = useAuth();
   const { pathname } = useLocation();
@@ -55,15 +57,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFC] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#F5F6F8] flex flex-col md:flex-row">
       {/* Mobile Top Bar */}
       <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#6741D9] text-white flex items-center justify-center font-bold text-sm">
-            B
-          </div>
-          <span className="font-bold text-gray-900 text-sm">BuyMeData</span>
-        </Link>
+        <BrandLogo size="sm" />
         <button
           onClick={() => setMobileNavOpen(!mobileNavOpen)}
           className="p-1.5 text-gray-600 rounded-lg hover:bg-gray-100"
@@ -81,34 +78,27 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="space-y-6">
           {/* Logo & Creator quick info */}
           <div className="hidden md:flex items-center justify-between pb-4 border-b border-gray-100">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#6741D9] text-white flex items-center justify-center font-bold">
-                B
-              </div>
-              <span className="font-bold text-base text-gray-900">
-                BuyMe<span className="text-[#6741D9]">Data</span>
-              </span>
-            </Link>
+            <BrandLogo size="md" />
           </div>
 
           {/* Quick link button to public page */}
           {creatorProfile?.username && (
-            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
+            <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 space-y-2">
               <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>Your Live Link</span>
+                <span className="font-medium">Your Public Page</span>
                 <button
                   onClick={copyPageLink}
-                  className="flex items-center gap-1 text-[#6741D9] hover:underline font-semibold"
+                  className="flex items-center gap-1 text-[#F22550] hover:underline font-bold text-[11px]"
                 >
                   {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                  {copied ? 'Copied' : 'Copy'}
+                  {copied ? 'Copied!' : 'Copy Link'}
                 </button>
               </div>
               <a
                 href={publicUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs font-semibold text-gray-800 hover:text-[#6741D9] flex items-center justify-between truncate"
+                className="text-xs font-bold text-gray-900 hover:text-[#F22550] flex items-center justify-between truncate"
               >
                 <span className="truncate">buymedata.com/{creatorProfile.username}</span>
                 <ExternalLink className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 ml-1" />
@@ -126,10 +116,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   key={item.href}
                   to={item.href}
                   onClick={() => setMobileNavOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     isActive
-                      ? 'bg-[#6741D9] text-white shadow-sm shadow-[#6741D9]/20'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'bg-[#F22550] text-white shadow-md shadow-[#F22550]/20'
+                      : 'text-gray-600 hover:text-gray-950 hover:bg-gray-50'
                   }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-400'}`} />

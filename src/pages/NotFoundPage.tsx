@@ -15,7 +15,7 @@ export function NotFoundPage() {
       <div className="mt-6 flex items-center gap-3">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#6741D9] text-white font-bold text-xs rounded-xl hover:bg-[#5633C4]"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#F22550] text-white font-bold text-xs rounded-xl hover:bg-[#D81A43]"
         >
           <Home className="w-3.5 h-3.5" /> Return to Home
         </Link>

@@ -53,7 +53,7 @@ export function MyPageEditor() {
   const [supportButtonText, setSupportButtonText] = useState(creatorProfile?.supportButtonText || 'Buy me data 📶');
   const [amounts, setAmounts] = useState<number[]>(creatorProfile?.suggestedAmounts || [500, 1000, 2000, 5000]);
   const [newAmountInput, setNewAmountInput] = useState<string>('');
-  const [theme, setTheme] = useState(creatorProfile?.theme || 'violet');
+  const [theme, setTheme] = useState(creatorProfile?.theme || 'crimson');
   const [showTotalRaised, setShowTotalRaised] = useState(creatorProfile?.publicSettings?.showTotalRaised !== false);
   const [showSupporterMessages, setShowSupporterMessages] = useState(creatorProfile?.publicSettings?.showSupporterMessages !== false);
   const [allowAnonymous, setAllowAnonymous] = useState(creatorProfile?.publicSettings?.allowAnonymous !== false);
@@ -145,6 +145,7 @@ export function MyPageEditor() {
 
   // Theme styling for simulator
   const themeClasses: Record<string, { banner: string; badge: string; button: string }> = {
+    crimson: { banner: 'from-[#F22550] to-[#D81A43]', badge: 'bg-[#FFE6EA] text-[#F22550]', button: 'bg-[#F22550]' },
     violet: { banner: 'from-[#6741D9] to-indigo-600', badge: 'bg-[#F0EBFF] text-[#6741D9]', button: 'bg-[#6741D9]' },
     emerald: { banner: 'from-emerald-600 to-teal-700', badge: 'bg-emerald-50 text-emerald-700', button: 'bg-emerald-600' },
     amber: { banner: 'from-amber-600 to-orange-600', badge: 'bg-amber-50 text-amber-700', button: 'bg-amber-600' },
@@ -153,7 +154,7 @@ export function MyPageEditor() {
     midnight: { banner: 'from-gray-900 to-slate-800', badge: 'bg-gray-100 text-gray-900', button: 'bg-gray-900' },
   };
 
-  const currentTheme = themeClasses[theme] || themeClasses.violet;
+  const currentTheme = themeClasses[theme] || themeClasses.crimson;
 
   return (
     <div className="space-y-6">
@@ -217,7 +218,7 @@ export function MyPageEditor() {
                   required
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
               </div>
 
@@ -230,7 +231,7 @@ export function MyPageEditor() {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                  className="w-full px-3.5 py-2 text-xs font-mono font-semibold rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3.5 py-2 text-xs font-mono font-semibold rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
               </div>
             </div>
@@ -242,7 +243,7 @@ export function MyPageEditor() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
               >
                 <option value="Software & Technology">Software & Technology</option>
                 <option value="Creative & Content">Creative & Content</option>
@@ -261,7 +262,7 @@ export function MyPageEditor() {
                 rows={3}
                 value={biography}
                 onChange={(e) => setBiography(e.target.value)}
-                className="w-full p-3 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9] resize-none"
+                className="w-full p-3 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550] resize-none"
               />
             </div>
           </div>
@@ -287,7 +288,7 @@ export function MyPageEditor() {
                     type="url"
                     value={profileImage}
                     onChange={(e) => setProfileImage(e.target.value)}
-                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                   />
                 </div>
                 <div className="flex items-center gap-2">
@@ -299,7 +300,7 @@ export function MyPageEditor() {
                         type="button"
                         onClick={() => setProfileImage(p)}
                         className={`w-7 h-7 rounded-lg overflow-hidden border-2 transition-all ${
-                          profileImage === p ? 'border-[#6741D9] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
+                          profileImage === p ? 'border-[#F22550] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                         }`}
                       >
                         <img src={p} alt="Preset" className="w-full h-full object-cover" />
@@ -320,7 +321,7 @@ export function MyPageEditor() {
                   placeholder="https://images.unsplash.com/..."
                   value={coverImage}
                   onChange={(e) => setCoverImage(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] text-gray-400">Presets:</span>
@@ -331,7 +332,7 @@ export function MyPageEditor() {
                         type="button"
                         onClick={() => setCoverImage(c)}
                         className={`h-6 w-11 rounded-md overflow-hidden border-2 transition-all ${
-                          coverImage === c ? 'border-[#6741D9] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
+                          coverImage === c ? 'border-[#F22550] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                         }`}
                       >
                         <img src={c} alt="Cover preset" className="w-full h-full object-cover" />
@@ -346,8 +347,9 @@ export function MyPageEditor() {
               <label className="block text-xs font-semibold text-gray-700 mb-2">
                 Color Theme Preset
               </label>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
                 {[
+                  { id: 'crimson', label: 'Crimson Red', color: 'bg-[#F22550]' },
                   { id: 'violet', label: 'Violet', color: 'bg-[#6741D9]' },
                   { id: 'emerald', label: 'Emerald', color: 'bg-emerald-600' },
                   { id: 'amber', label: 'Amber', color: 'bg-amber-600' },
@@ -387,7 +389,7 @@ export function MyPageEditor() {
                   placeholder="https://yourportfolio.com"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
               </div>
 
@@ -400,7 +402,7 @@ export function MyPageEditor() {
                   placeholder="@yourhandle"
                   value={twitter}
                   onChange={(e) => setTwitter(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
               </div>
 
@@ -413,7 +415,7 @@ export function MyPageEditor() {
                   placeholder="username"
                   value={github}
                   onChange={(e) => setGithub(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
               </div>
 
@@ -426,7 +428,7 @@ export function MyPageEditor() {
                   placeholder="in/username"
                   value={linkedin}
                   onChange={(e) => setLinkedin(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
               </div>
 
@@ -439,7 +441,7 @@ export function MyPageEditor() {
                   placeholder="@handle"
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
               </div>
 
@@ -452,7 +454,7 @@ export function MyPageEditor() {
                   placeholder="@channel"
                   value={youtube}
                   onChange={(e) => setYoutube(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
               </div>
             </div>
@@ -472,7 +474,7 @@ export function MyPageEditor() {
                 type="text"
                 value={supportButtonText}
                 onChange={(e) => setSupportButtonText(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
               />
             </div>
 
@@ -513,7 +515,7 @@ export function MyPageEditor() {
                   placeholder="e.g. 10000"
                   value={newAmountInput}
                   onChange={(e) => setNewAmountInput(e.target.value)}
-                  className="flex-1 px-3 py-1.5 text-xs font-bold rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="flex-1 px-3 py-1.5 text-xs font-bold rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 />
                 <button
                   type="button"
@@ -531,7 +533,7 @@ export function MyPageEditor() {
                   type="checkbox"
                   checked={showTotalRaised}
                   onChange={(e) => setShowTotalRaised(e.target.checked)}
-                  className="rounded text-[#6741D9] focus:ring-[#6741D9] w-4 h-4"
+                  className="rounded text-[#F22550] focus:ring-[#F22550] w-4 h-4"
                 />
                 <span>Display total public amount raised on my page</span>
               </label>
@@ -540,7 +542,7 @@ export function MyPageEditor() {
                   type="checkbox"
                   checked={showSupporterMessages}
                   onChange={(e) => setShowSupporterMessages(e.target.checked)}
-                  className="rounded text-[#6741D9] focus:ring-[#6741D9] w-4 h-4"
+                  className="rounded text-[#F22550] focus:ring-[#F22550] w-4 h-4"
                 />
                 <span>Display supporter encouragement messages on public wall</span>
               </label>
@@ -549,7 +551,7 @@ export function MyPageEditor() {
                   type="checkbox"
                   checked={allowAnonymous}
                   onChange={(e) => setAllowAnonymous(e.target.checked)}
-                  className="rounded text-[#6741D9] focus:ring-[#6741D9] w-4 h-4"
+                  className="rounded text-[#F22550] focus:ring-[#F22550] w-4 h-4"
                 />
                 <span>Allow supporters to contribute anonymously</span>
               </label>
@@ -560,7 +562,7 @@ export function MyPageEditor() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full py-3.5 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-2xl shadow-md shadow-[#6741D9]/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-2xl shadow-lg shadow-[#F22550]/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -580,7 +582,7 @@ export function MyPageEditor() {
         <div className="lg:col-span-5 sticky top-20 space-y-3">
           <div className="flex items-center justify-between text-xs text-gray-500 px-1">
             <span className="font-bold uppercase tracking-wider text-[10px] flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5 text-[#6741D9]" /> Live Supporter Preview
+              <Eye className="w-3.5 h-3.5 text-[#F22550]" /> Live Supporter Preview
             </span>
             <div className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg">
               <button

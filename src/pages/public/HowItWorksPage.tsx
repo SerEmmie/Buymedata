@@ -8,7 +8,10 @@ import {
   Heart,
   Landmark,
   Shield,
-  Layers,
+  Zap,
+  AtSign,
+  Mail,
+  Check,
 } from 'lucide-react';
 
 export function HowItWorksPage() {
@@ -16,90 +19,141 @@ export function HowItWorksPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-4">
-        <span className="text-xs font-bold text-[#6741D9] uppercase tracking-wider">
-          Simple & Transparent
+        <span className="text-xs font-bold text-[#F22550] uppercase tracking-wider bg-[#FFE6EA] px-3 py-1 rounded-full">
+          Simple, Fast & Frictionless
         </span>
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-          How BuyMeData Works
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-[#17191F] tracking-tight">
+          How BuyMeData Works in 3 Steps
         </h1>
         <p className="text-gray-600 text-base leading-relaxed">
-          From creating your first page to withdrawing funds to your local bank account, here is everything you need to know.
+          Start receiving support and funding goals in under 60 seconds. A little support goes a long way.
         </p>
       </div>
 
-      {/* 5-Step Deep Dive */}
+      {/* 3-Step Deep Dive */}
       <div className="space-y-8">
         {[
           {
             step: 'Step 1',
-            title: 'Create your account',
+            number: '01',
+            title: 'Claim your page with your unique username',
+            badge: 'Instant Claiming',
+            icon: AtSign,
             description:
-              'Register in under 60 seconds with your email or Google account. Choose your personal username (e.g. buymedata.com/samuel) which acts as your permanent, shareable support destination.',
-            badge: 'Quick Registration',
+              'Choose your personal username (e.g. buymedata.com/@yourname). We verify availability instantly so your permanent link is reserved before you even complete registration.',
+            highlights: [
+              'Custom link: buymedata.com/@yourname',
+              'Reserved instantly with real-time verification',
+              'Shareable anywhere across social media and messaging',
+            ],
           },
           {
             step: 'Step 2',
-            title: 'Set up your BuyMeData page',
+            number: '02',
+            title: 'Sign up with Gmail or a one-time magic link',
+            badge: 'Frictionless Auth',
+            icon: Mail,
             description:
-              'Customize your bio, upload a profile image and cover banner, select a brand color theme, and configure suggested support amounts (e.g. ₦500, ₦1,000, ₦2,000, ₦5,000). You can also set custom CTA text such as "Buy me data 📶", "Buy me coffee ☕", or "Fuel my research 🚀".',
-            badge: 'Personalization',
+              'Authenticate in a single click using your Google / Gmail account or enter your email to receive a secure one-time sign-in link. No tedious forms and no passwords to remember.',
+            highlights: [
+              'One-click sign up with Google / Gmail',
+              'Or passwordless one-time link sent directly to your email',
+              'Secure and verified via Firebase Authentication',
+            ],
           },
           {
             step: 'Step 3',
-            title: 'Share your link',
+            number: '03',
+            title: 'See your dashboard & start receiving direct support',
+            badge: 'Direct Dashboard Access',
+            icon: Landmark,
             description:
-              'Paste your unique link across your social media profiles (Twitter/X, Instagram, YouTube, TikTok, LinkedIn, or WhatsApp). Embed it in newsletters, articles, or project READMEs.',
-            badge: 'Audience Connection',
+              'You land straight in your creator dashboard! Your page is immediately active. Any other onboarding—such as connecting your bank account for payouts or adding a custom bio—can be completed whenever you want while you are already inside.',
+            highlights: [
+              'Immediate dashboard access with zero blocking wizards',
+              'Receive contributions via card, bank transfer, or USSD',
+              'Automated payout settlements directly to Nigerian banks in ₦',
+            ],
           },
-          {
-            step: 'Step 4',
-            title: 'Receive contributions friction-free',
-            description:
-              'Supporters visit your page, choose an amount, and complete payments via debit cards, bank transfers, or USSD without having to register an account. Supporters can leave public messages of encouragement or contribute anonymously.',
-            badge: 'Frictionless Checkout',
-          },
-          {
-            step: 'Step 5',
-            title: 'Track your progress and withdraw eligible funds',
-            description:
-              'Track every contribution through our auditable double-entry financial ledger. Connect your Nigerian bank account (GTBank, Access Bank, Zenith, Kuda, OPay, etc.) and withdraw funds anytime your available balance meets the ₦2,000 threshold.',
-            badge: 'Direct Payouts',
-          },
-        ].map((item, idx) => (
-          <div
-            key={item.step}
-            className="bg-white rounded-3xl p-8 border border-gray-100 shadow-xs flex flex-col md:flex-row md:items-center gap-6"
-          >
-            <div className="w-14 h-14 rounded-2xl bg-[#F0EBFF] text-[#6741D9] flex items-center justify-center font-extrabold text-xl flex-shrink-0">
-              {idx + 1}
-            </div>
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#6741D9] uppercase">{item.step}</span>
-                <span className="text-gray-300">•</span>
-                <span className="text-xs font-semibold px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md">
-                  {item.badge}
-                </span>
+        ].map((item, idx) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={item.step}
+              className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-100 shadow-sm hover:border-[#F22550]/30 transition-all flex flex-col md:flex-row md:items-start gap-6"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-[#FFE6EA] text-[#F22550] flex items-center justify-center font-extrabold text-xl flex-shrink-0">
+                <Icon className="w-7 h-7" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">{item.title}</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
+              <div className="space-y-3 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-[#F22550] uppercase">{item.step}</span>
+                  <span className="text-gray-300">•</span>
+                  <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md">
+                    {item.badge}
+                  </span>
+                </div>
+                <h3 className="text-2xl font-extrabold text-[#17191F]">{item.title}</h3>
+                <p className="text-sm sm:text-base text-gray-600 leading-relaxed">{item.description}</p>
+                <div className="pt-2 space-y-1.5">
+                  {item.highlights.map((h, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs font-medium text-gray-700">
+                      <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      <span>{h}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
+          );
+        })}
+      </div>
+
+      {/* Frequently Asked Questions */}
+      <div className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-100 shadow-sm space-y-6">
+        <h2 className="text-2xl font-extrabold text-[#17191F]">Frequently Asked Questions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-600">
+          <div className="space-y-1.5">
+            <h4 className="font-bold text-gray-900">Do my supporters have to create an account?</h4>
+            <p className="text-xs leading-relaxed text-gray-500">
+              No! Anyone visiting your page can contribute in under 30 seconds using Nigerian debit cards, direct bank transfer, or USSD without signing up.
+            </p>
           </div>
-        ))}
+          <div className="space-y-1.5">
+            <h4 className="font-bold text-gray-900">How do payouts work?</h4>
+            <p className="text-xs leading-relaxed text-gray-500">
+              When you are in your dashboard, add your commercial bank account (GTBank, Access, Zenith, Kuda, OPay, etc.). Funds are disbursed seamlessly via our verified Bachs.io financial gateway.
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <h4 className="font-bold text-gray-900">What fees does BuyMeData charge?</h4>
+            <p className="text-xs leading-relaxed text-gray-500">
+              BuyMeData operates on a flat, transparent 5% platform fee on successful contributions. There are no monthly fees, hidden dues, or setup costs.
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <h4 className="font-bold text-gray-900">Can I organize fundraising campaigns?</h4>
+            <p className="text-xs leading-relaxed text-gray-500">
+              Yes! In addition to receiving open support, you can create targeted fundraising campaigns with deadlines, financial targets, and progress updates.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* CTA */}
-      <div className="bg-[#6741D9] text-white p-10 rounded-3xl text-center space-y-4">
-        <h2 className="text-2xl font-bold">Ready to get started?</h2>
-        <p className="text-[#F0EBFF] text-sm max-w-md mx-auto">
-          Start receiving financial contributions from your community today.
+      <div className="bg-[#F22550] text-white p-10 sm:p-12 rounded-3xl text-center space-y-4 shadow-xl shadow-[#F22550]/25">
+        <h2 className="text-2xl sm:text-3xl font-extrabold">Ready to claim your page?</h2>
+        <p className="text-[#FFE6EA] text-sm max-w-md mx-auto">
+          Start receiving contributions from your community in just 3 steps.
         </p>
-        <Link
-          to="/auth/register"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#6741D9] font-bold text-sm rounded-xl hover:bg-gray-50 transition-colors"
-        >
-          Create Your Page Now <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="pt-2">
+          <Link
+            to="/auth/register"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-[#F22550] hover:bg-gray-50 font-extrabold text-sm rounded-xl shadow-md transition-all hover:scale-102"
+          >
+            Claim Your Page Now <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
     </div>
   );

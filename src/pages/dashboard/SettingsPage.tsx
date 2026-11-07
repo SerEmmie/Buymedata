@@ -132,7 +132,7 @@ export function SettingsPage() {
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
-          <Settings className="w-6 h-6 text-[#6741D9]" />
+          <Settings className="w-6 h-6 text-[#F22550]" />
           <span>Creator Settings & Payouts</span>
         </h1>
         <p className="text-xs text-gray-500">
@@ -143,7 +143,7 @@ export function SettingsPage() {
       {/* Account Profile Card */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-xs space-y-6">
         <h3 className="font-extrabold text-base text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
-          <User className="w-4 h-4 text-[#6741D9]" />
+          <User className="w-4 h-4 text-[#F22550]" />
           <span>Account Profile</span>
         </h3>
 
@@ -171,7 +171,7 @@ export function SettingsPage() {
               Account Role & Status
             </label>
             <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex items-center justify-between">
-              <span className="font-bold uppercase text-[#6741D9]">
+              <span className="font-bold uppercase text-[#F22550]">
                 {userProfile?.role || 'Creator'}
               </span>
               <span className={`text-[10px] px-2 py-0.5 font-bold rounded ${
@@ -208,7 +208,7 @@ export function SettingsPage() {
             <button
               type="button"
               onClick={() => setEditingBank(true)}
-              className="text-xs font-semibold text-[#6741D9] hover:underline"
+              className="text-xs font-semibold text-[#F22550] hover:underline"
             >
               Change Bank
             </button>
@@ -231,7 +231,7 @@ export function SettingsPage() {
 
         {bankLoading ? (
           <div className="py-6 flex justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-[#6741D9]" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#F22550]" />
           </div>
         ) : paymentAccount && !editingBank ? (
           <div className="p-5 bg-gray-50 rounded-2xl border border-gray-200/80 space-y-3">
@@ -269,7 +269,7 @@ export function SettingsPage() {
                     setAccountVerified(false);
                     setAccountName('');
                   }}
-                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                 >
                   {SUPPORTED_NIGERIAN_BANKS.map((b) => (
                     <option key={b.code} value={b.code}>
@@ -294,7 +294,7 @@ export function SettingsPage() {
                       setAccountVerified(false);
                       setAccountName('');
                     }}
-                    className="flex-1 px-3 py-2.5 text-xs font-mono font-semibold rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+                    className="flex-1 px-3 py-2.5 text-xs font-mono font-semibold rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
                   />
                   <button
                     type="button"
@@ -324,7 +324,7 @@ export function SettingsPage() {
               <button
                 type="submit"
                 disabled={!accountVerified || savingBank}
-                className="px-5 py-2.5 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-xl disabled:opacity-50 transition-colors flex items-center gap-2"
+                className="px-5 py-2.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-xl disabled:opacity-50 transition-colors flex items-center gap-2"
               >
                 {savingBank ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                 <span>Save Bank Account</span>
@@ -347,7 +347,7 @@ export function SettingsPage() {
       {/* Notification Preferences */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-xs space-y-5">
         <h3 className="font-extrabold text-base text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
-          <Bell className="w-4 h-4 text-[#6741D9]" />
+          <Bell className="w-4 h-4 text-[#F22550]" />
           <span>Notification Preferences</span>
         </h3>
 
@@ -357,7 +357,7 @@ export function SettingsPage() {
               type="checkbox"
               checked={notifyOnContribution}
               onChange={(e) => setNotifyOnContribution(e.target.checked)}
-              className="mt-0.5 rounded text-[#6741D9] focus:ring-[#6741D9] w-4 h-4"
+              className="mt-0.5 rounded text-[#F22550] focus:ring-[#F22550] w-4 h-4"
             />
             <div>
               <span className="font-bold text-gray-900 block">Contribution Alerts</span>
@@ -370,7 +370,7 @@ export function SettingsPage() {
               type="checkbox"
               checked={notifyOnMilestone}
               onChange={(e) => setNotifyOnMilestone(e.target.checked)}
-              className="mt-0.5 rounded text-[#6741D9] focus:ring-[#6741D9] w-4 h-4"
+              className="mt-0.5 rounded text-[#F22550] focus:ring-[#F22550] w-4 h-4"
             />
             <div>
               <span className="font-bold text-gray-900 block">Campaign Milestones</span>
@@ -383,7 +383,7 @@ export function SettingsPage() {
               type="checkbox"
               checked={notifyOnPayout}
               onChange={(e) => setNotifyOnPayout(e.target.checked)}
-              className="mt-0.5 rounded text-[#6741D9] focus:ring-[#6741D9] w-4 h-4"
+              className="mt-0.5 rounded text-[#F22550] focus:ring-[#F22550] w-4 h-4"
             />
             <div>
               <span className="font-bold text-gray-900 block">Payout Updates</span>
@@ -406,7 +406,7 @@ export function SettingsPage() {
       {/* Security & Credentials */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-xs space-y-6">
         <h3 className="font-extrabold text-base text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
-          <Lock className="w-4 h-4 text-[#6741D9]" />
+          <Lock className="w-4 h-4 text-[#F22550]" />
           <span>Authentication & Security</span>
         </h3>
 

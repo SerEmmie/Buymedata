@@ -22,7 +22,7 @@ export function SupporterMessageWall({ messages }: SupporterMessageWallProps) {
   if (messages.length === 0) {
     return (
       <div className="bg-white rounded-3xl border border-gray-100 p-8 text-center space-y-2">
-        <div className="w-12 h-12 rounded-2xl bg-[#F0EBFF] text-[#6741D9] flex items-center justify-center mx-auto">
+        <div className="w-12 h-12 rounded-2xl bg-[#FFE6EA] text-[#F22550] flex items-center justify-center mx-auto">
           <MessageSquare className="w-6 h-6" />
         </div>
         <h4 className="font-bold text-gray-800 text-sm">Be the first to show support</h4>
@@ -53,7 +53,7 @@ export function SupporterMessageWall({ messages }: SupporterMessageWallProps) {
           onClick={() => setFilter('with_message')}
           className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-colors ${
             filter === 'with_message'
-              ? 'bg-[#6741D9] text-white shadow-xs'
+              ? 'bg-[#F22550] text-white shadow-xs'
               : 'text-gray-500 hover:text-gray-900 bg-gray-50'
           }`}
         >
@@ -74,7 +74,7 @@ export function SupporterMessageWall({ messages }: SupporterMessageWallProps) {
             >
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6741D9] to-indigo-500 text-white font-extrabold text-xs flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#F22550] to-indigo-500 text-white font-extrabold text-xs flex items-center justify-center flex-shrink-0">
                     {c.anonymous ? '?' : (c.supporterName || 'A')[0].toUpperCase()}
                   </div>
                   <div>
@@ -94,7 +94,7 @@ export function SupporterMessageWall({ messages }: SupporterMessageWallProps) {
                     </span>
                   </div>
                 </div>
-                <span className="font-bold text-xs text-[#6741D9] bg-[#F0EBFF] px-2.5 py-1 rounded-lg">
+                <span className="font-bold text-xs text-[#F22550] bg-[#FFE6EA] px-2.5 py-1 rounded-lg">
                   {formatCurrency(c.amount)}
                 </span>
               </div>

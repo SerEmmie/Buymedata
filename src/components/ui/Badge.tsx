@@ -17,7 +17,7 @@ export function Badge({
     success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     warning: 'bg-amber-50 text-amber-700 border-amber-200',
     danger: 'bg-rose-50 text-rose-700 border-rose-200',
-    purple: 'bg-[#F0EBFF] text-[#6741D9] border-[#E1D6FC]',
+    purple: 'bg-[#FFE6EA] text-[#F22550] border-[#FFCCD5]',
     info: 'bg-blue-50 text-blue-700 border-blue-200',
   };
 

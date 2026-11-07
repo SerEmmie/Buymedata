@@ -34,7 +34,7 @@ export function LegalPage({ docType }: { docType?: 'terms' | 'privacy' | 'refund
           to="/terms"
           className={`px-4 py-2 rounded-t-xl transition-colors whitespace-nowrap ${
             currentDoc === 'terms'
-              ? 'bg-white text-[#6741D9] border-b-2 border-[#6741D9]'
+              ? 'bg-white text-[#F22550] border-b-2 border-[#F22550]'
               : 'text-gray-500 hover:text-gray-900'
           }`}
         >
@@ -44,7 +44,7 @@ export function LegalPage({ docType }: { docType?: 'terms' | 'privacy' | 'refund
           to="/privacy"
           className={`px-4 py-2 rounded-t-xl transition-colors whitespace-nowrap ${
             currentDoc === 'privacy'
-              ? 'bg-white text-[#6741D9] border-b-2 border-[#6741D9]'
+              ? 'bg-white text-[#F22550] border-b-2 border-[#F22550]'
               : 'text-gray-500 hover:text-gray-900'
           }`}
         >
@@ -54,7 +54,7 @@ export function LegalPage({ docType }: { docType?: 'terms' | 'privacy' | 'refund
           to="/refund-policy"
           className={`px-4 py-2 rounded-t-xl transition-colors whitespace-nowrap ${
             currentDoc === 'refund-policy'
-              ? 'bg-white text-[#6741D9] border-b-2 border-[#6741D9]'
+              ? 'bg-white text-[#F22550] border-b-2 border-[#F22550]'
               : 'text-gray-500 hover:text-gray-900'
           }`}
         >
@@ -64,7 +64,7 @@ export function LegalPage({ docType }: { docType?: 'terms' | 'privacy' | 'refund
           to="/guidelines"
           className={`px-4 py-2 rounded-t-xl transition-colors whitespace-nowrap ${
             currentDoc === 'guidelines'
-              ? 'bg-white text-[#6741D9] border-b-2 border-[#6741D9]'
+              ? 'bg-white text-[#F22550] border-b-2 border-[#F22550]'
               : 'text-gray-500 hover:text-gray-900'
           }`}
         >
@@ -135,7 +135,7 @@ export function LegalPage({ docType }: { docType?: 'terms' | 'privacy' | 'refund
 
             <h3 className="font-bold text-gray-900 text-sm pt-2">2. Unauthorized or Fraudulent Charges</h3>
             <p>
-              If a charge was made fraudulently or without your consent using your card or banking details, please contact our trust and safety department immediately at <span className="font-mono text-[#6741D9]">safety@buymedata.com</span>. We cooperate with financial institutions to investigate disputed transactions.
+              If a charge was made fraudulently or without your consent using your card or banking details, please contact our trust and safety department immediately at <span className="font-mono text-[#F22550]">safety@buymedata.com</span>. We cooperate with financial institutions to investigate disputed transactions.
             </p>
 
             <h3 className="font-bold text-gray-900 text-sm pt-2">3. Campaign Cancellation & Abuse</h3>

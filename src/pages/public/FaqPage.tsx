@@ -58,7 +58,7 @@ export function FaqPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
       <div className="text-center max-w-2xl mx-auto space-y-4">
-        <span className="text-xs font-bold text-[#6741D9] uppercase tracking-wider">
+        <span className="text-xs font-bold text-[#F22550] uppercase tracking-wider">
           Help & Support
         </span>
         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
@@ -76,7 +76,7 @@ export function FaqPage() {
             placeholder="Search questions (e.g. payout, fees, campaigns)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl border border-gray-200 text-sm focus:outline-none focus:border-[#6741D9] shadow-xs"
+            className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl border border-gray-200 text-sm focus:outline-none focus:border-[#F22550] shadow-xs"
           />
         </div>
       </div>
@@ -92,12 +92,12 @@ export function FaqPage() {
               <button
                 type="button"
                 onClick={() => setOpenIndex(isOpen ? null : idx)}
-                className="w-full p-5 text-left flex items-center justify-between font-bold text-gray-900 text-sm hover:text-[#6741D9] transition-colors"
+                className="w-full p-5 text-left flex items-center justify-between font-bold text-gray-900 text-sm hover:text-[#F22550] transition-colors"
               >
                 <span>{faq.q}</span>
                 <ChevronDown
                   className={`w-4 h-4 text-gray-400 transition-transform ${
-                    isOpen ? 'rotate-180 text-[#6741D9]' : ''
+                    isOpen ? 'rotate-180 text-[#F22550]' : ''
                   }`}
                 />
               </button>
@@ -125,7 +125,7 @@ export function FaqPage() {
         <div className="pt-2">
           <a
             href="mailto:support@buymedata.com"
-            className="text-xs font-bold text-[#6741D9] hover:underline"
+            className="text-xs font-bold text-[#F22550] hover:underline"
           >
             support@buymedata.com
           </a>

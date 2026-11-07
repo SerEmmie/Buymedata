@@ -125,7 +125,7 @@ export function AdminCampaignsPage() {
                         {formatCurrency(c.targetAmount)}
                       </td>
                       <td className="p-4">
-                        <span className="font-bold text-[#6741D9]">
+                        <span className="font-bold text-[#F22550]">
                           {formatCurrency(c.amountRaised)}
                         </span>{' '}
                         <span className="text-[10px] text-gray-400">({progress}%)</span>

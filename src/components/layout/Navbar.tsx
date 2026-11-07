@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { getUserNotifications } from '../../services/notificationService';
 
+import { BrandLogo } from '../ui/BrandLogo';
+
 export function Navbar() {
   const { fbUser, userProfile, creatorProfile, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
@@ -38,49 +40,43 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#6741D9] to-[#8C68FF] flex items-center justify-center text-white shadow-md shadow-[#6741D9]/20 group-hover:scale-105 transition-transform">
-            <span className="font-extrabold text-lg">B</span>
-          </div>
-          <span className="font-bold text-xl tracking-tight text-gray-900">
-            BuyMe<span className="text-[#6741D9]">Data</span>
+        {/* Brand Logo with Slogan */}
+        <div className="flex items-center gap-3">
+          <BrandLogo size="md" />
+          <span className="hidden lg:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FFE6EA] text-[#F22550]">
+            A little support goes a long way
           </span>
-          <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#F0EBFF] text-[#6741D9]">
-            NGN ₦
-          </span>
-        </Link>
+        </div>
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-gray-600">
           <Link
             to="/how-it-works"
-            className={`hover:text-[#6741D9] transition-colors ${pathname === '/how-it-works' ? 'text-[#6741D9] font-semibold' : ''}`}
+            className={`hover:text-[#F22550] transition-colors ${pathname === '/how-it-works' ? 'text-[#F22550] font-bold' : ''}`}
           >
             How it works
           </Link>
           <Link
             to="/about"
-            className={`hover:text-[#6741D9] transition-colors ${pathname === '/about' ? 'text-[#6741D9] font-semibold' : ''}`}
+            className={`hover:text-[#F22550] transition-colors ${pathname === '/about' ? 'text-[#F22550] font-bold' : ''}`}
           >
             About
           </Link>
           <Link
             to="/faq"
-            className={`hover:text-[#6741D9] transition-colors ${pathname === '/faq' ? 'text-[#6741D9] font-semibold' : ''}`}
+            className={`hover:text-[#F22550] transition-colors ${pathname === '/faq' ? 'text-[#F22550] font-bold' : ''}`}
           >
             FAQ
           </Link>
           <Link
             to="/folatech"
-            className="hover:text-[#6741D9] transition-colors flex items-center gap-1 text-gray-500 hover:text-gray-900 text-xs bg-gray-50 px-2.5 py-1 rounded-full border border-gray-200"
+            className="hover:text-[#F22550] transition-colors flex items-center gap-1.5 text-gray-500 hover:text-gray-900 text-xs bg-gray-50 px-3 py-1 rounded-full border border-gray-200"
           >
-            <Sparkles className="w-3 h-3 text-[#6741D9]" /> Explore Sample Creator
+            <Sparkles className="w-3 h-3 text-[#F22550]" /> Explore Sample Page
           </Link>
         </nav>
-
         {/* Right CTA / Auth status */}
         <div className="hidden md:flex items-center gap-3">
           {fbUser ? (
@@ -88,12 +84,12 @@ export function Navbar() {
               {/* Notification icon */}
               <Link
                 to="/dashboard/notifications"
-                className="relative p-2 text-gray-500 hover:text-[#6741D9] hover:bg-gray-50 rounded-lg transition-colors"
+                className="relative p-2 text-gray-500 hover:text-[#F22550] hover:bg-gray-50 rounded-xl transition-colors"
                 title="Notifications"
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-[#F22550] text-white rounded-full text-[10px] font-bold flex items-center justify-center">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -103,7 +99,7 @@ export function Navbar() {
               {isAdmin && (
                 <Link
                   to="/admin"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors"
                 >
                   <ShieldAlert className="w-3.5 h-3.5 text-amber-600" /> Admin
                 </Link>
@@ -112,7 +108,7 @@ export function Navbar() {
               {/* Creator Dashboard Button */}
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[#F0EBFF] text-[#6741D9] hover:bg-[#E5DBFF] rounded-lg transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-[#FFE6EA] text-[#F22550] hover:bg-[#ffd5dc] rounded-xl transition-colors"
               >
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
@@ -135,7 +131,7 @@ export function Navbar() {
 
                 {dropdownOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
+                    className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
                     onMouseLeave={() => setDropdownOpen(false)}
                   >
                     <div className="px-3.5 py-2 border-b border-gray-100">
@@ -147,16 +143,16 @@ export function Navbar() {
                       <Link
                         to={`/${creatorProfile.username}`}
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-gray-700 hover:bg-[#F0EBFF] hover:text-[#6741D9]"
+                        className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-gray-700 hover:bg-[#FFE6EA] hover:text-[#F22550]"
                       >
-                        <Heart className="w-3.5 h-3.5 text-[#6741D9]" /> My Public Page
+                        <Heart className="w-3.5 h-3.5 text-[#F22550]" /> My Public Page
                       </Link>
                     )}
 
                     <Link
                       to="/dashboard"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-gray-700 hover:bg-[#F0EBFF] hover:text-[#6741D9]"
+                      className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-gray-700 hover:bg-[#FFE6EA] hover:text-[#F22550]"
                     >
                       <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
                     </Link>
@@ -174,7 +170,7 @@ export function Navbar() {
                     <div className="border-t border-gray-100 my-1" />
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-red-600 hover:bg-red-50"
+                      className="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
                     >
                       <LogOut className="w-3.5 h-3.5" /> Sign out
                     </button>
@@ -186,15 +182,15 @@ export function Navbar() {
             <div className="flex items-center gap-3">
               <Link
                 to="/auth/login"
-                className="text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-2 transition-colors"
+                className="text-sm font-semibold text-gray-700 hover:text-gray-950 px-3 py-2 transition-colors"
               >
                 Sign in
               </Link>
               <Link
                 to="/auth/register"
-                className="inline-flex items-center justify-center text-sm font-semibold text-white bg-[#6741D9] hover:bg-[#5633C4] px-4 py-2 rounded-xl shadow-sm shadow-[#6741D9]/25 transition-all hover:shadow-md"
+                className="inline-flex items-center justify-center text-sm font-bold text-white bg-[#F22550] hover:bg-[#D81A43] px-5 py-2.5 rounded-xl shadow-md shadow-[#F22550]/20 transition-all hover:scale-102"
               >
-                Get Started
+                Claim Your Page
               </Link>
             </div>
           )}
@@ -203,7 +199,7 @@ export function Navbar() {
         {/* Mobile menu button */}
         <div className="flex md:hidden items-center gap-2">
           {fbUser && (
-            <Link to="/dashboard" className="p-2 text-[#6741D9] bg-[#F0EBFF] rounded-lg">
+            <Link to="/dashboard" className="p-2 text-[#F22550] bg-[#FFE6EA] rounded-lg">
               <LayoutDashboard className="w-4 h-4" />
             </Link>
           )}
@@ -223,30 +219,30 @@ export function Navbar() {
           <Link
             to="/how-it-works"
             onClick={() => setMenuOpen(false)}
-            className="block py-2 text-sm font-medium text-gray-700"
+            className="block py-2 text-sm font-semibold text-gray-700 hover:text-[#F22550]"
           >
             How it works
           </Link>
           <Link
             to="/about"
             onClick={() => setMenuOpen(false)}
-            className="block py-2 text-sm font-medium text-gray-700"
+            className="block py-2 text-sm font-semibold text-gray-700 hover:text-[#F22550]"
           >
             About BuyMeData
           </Link>
           <Link
             to="/faq"
             onClick={() => setMenuOpen(false)}
-            className="block py-2 text-sm font-medium text-gray-700"
+            className="block py-2 text-sm font-semibold text-gray-700 hover:text-[#F22550]"
           >
             FAQ
           </Link>
           <Link
             to="/folatech"
             onClick={() => setMenuOpen(false)}
-            className="block py-2 text-sm font-medium text-[#6741D9]"
+            className="block py-2 text-sm font-semibold text-[#F22550]"
           >
-            Explore Sample Creator (@folatech)
+            Explore Sample Page (@folatech)
           </Link>
 
           <div className="pt-2 border-t border-gray-100 space-y-2">
@@ -255,7 +251,7 @@ export function Navbar() {
                 <Link
                   to="/dashboard"
                   onClick={() => setMenuOpen(false)}
-                  className="block w-full text-center py-2.5 text-sm font-medium bg-[#6741D9] text-white rounded-lg"
+                  className="block w-full text-center py-2.5 text-sm font-bold bg-[#F22550] text-white rounded-xl shadow-xs"
                 >
                   Open Creator Dashboard
                 </Link>
@@ -263,7 +259,7 @@ export function Navbar() {
                   <Link
                     to="/admin"
                     onClick={() => setMenuOpen(false)}
-                    className="block w-full text-center py-2 text-sm font-medium text-amber-700 bg-amber-50 rounded-lg"
+                    className="block w-full text-center py-2 text-sm font-medium text-amber-700 bg-amber-50 rounded-xl"
                   >
                     Admin Console
                   </Link>
@@ -280,16 +276,16 @@ export function Navbar() {
                 <Link
                   to="/auth/login"
                   onClick={() => setMenuOpen(false)}
-                  className="text-center py-2.5 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg"
+                  className="text-center py-2.5 text-sm font-semibold text-gray-700 border border-gray-200 rounded-xl"
                 >
                   Sign in
                 </Link>
                 <Link
                   to="/auth/register"
                   onClick={() => setMenuOpen(false)}
-                  className="text-center py-2.5 text-sm font-semibold bg-[#6741D9] text-white rounded-lg"
+                  className="text-center py-2.5 text-sm font-bold bg-[#F22550] text-white rounded-xl shadow-xs"
                 >
-                  Get Started
+                  Claim Page
                 </Link>
               </div>
             )}

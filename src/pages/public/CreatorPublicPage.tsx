@@ -165,7 +165,7 @@ export function CreatorPublicPage() {
           </Link>
           <Link
             to="/folatech"
-            className="px-5 py-2.5 bg-[#6741D9] text-white font-semibold text-xs rounded-xl hover:bg-[#5633C4]"
+            className="px-5 py-2.5 bg-[#F22550] text-white font-semibold text-xs rounded-xl hover:bg-[#D81A43]"
           >
             Explore Sample Creator (@folatech)
           </Link>
@@ -179,6 +179,7 @@ export function CreatorPublicPage() {
 
   // Theme styling
   const themeClasses: Record<string, { banner: string; ring: string; badge: string; button: string }> = {
+    crimson: { banner: 'from-[#F22550] to-[#D81A43]', ring: 'ring-[#F22550]', badge: 'bg-[#FFE6EA] text-[#F22550]', button: 'bg-[#F22550]' },
     violet: { banner: 'from-[#6741D9] to-indigo-600', ring: 'ring-[#6741D9]', badge: 'bg-[#F0EBFF] text-[#6741D9]', button: 'bg-[#6741D9]' },
     emerald: { banner: 'from-emerald-600 to-teal-700', ring: 'ring-emerald-600', badge: 'bg-emerald-50 text-emerald-700', button: 'bg-emerald-600' },
     amber: { banner: 'from-amber-600 to-orange-600', ring: 'ring-amber-600', badge: 'bg-amber-50 text-amber-700', button: 'bg-amber-600' },
@@ -187,7 +188,7 @@ export function CreatorPublicPage() {
     midnight: { banner: 'from-gray-900 to-slate-800', ring: 'ring-gray-900', badge: 'bg-gray-100 text-gray-900', button: 'bg-gray-900' },
   };
 
-  const currentTheme = themeClasses[creator.theme] || themeClasses.violet;
+  const currentTheme = themeClasses[creator.theme] || themeClasses.crimson;
 
   return (
     <div className="pb-24">
@@ -273,7 +274,7 @@ export function CreatorPublicPage() {
                     href={creator.website.startsWith('http') ? creator.website : `https://${creator.website}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 hover:text-[#6741D9] font-medium"
+                    className="inline-flex items-center gap-1 hover:text-[#F22550] font-medium"
                   >
                     <Globe className="w-3.5 h-3.5" />
                     <span>Website</span>
@@ -354,7 +355,7 @@ export function CreatorPublicPage() {
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     Public Raised (NGN)
                   </p>
-                  <p className="text-xl font-black text-[#6741D9] mt-0.5">
+                  <p className="text-xl font-black text-[#F22550] mt-0.5">
                     {creator.publicSettings?.showTotalRaised !== false
                       ? formatCurrency(totalRaised)
                       : 'Private'}
@@ -391,7 +392,7 @@ export function CreatorPublicPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-extrabold text-gray-900 text-lg flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-[#6741D9]" />
+                  <MessageSquare className="w-5 h-5 text-[#F22550]" />
                   <span>Supporter Wall</span>
                 </h3>
                 <span className="text-xs text-gray-400">

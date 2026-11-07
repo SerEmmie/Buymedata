@@ -6,7 +6,7 @@ export function AboutPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
       <div className="text-center max-w-2xl mx-auto space-y-4">
-        <span className="text-xs font-bold text-[#6741D9] uppercase tracking-wider">
+        <span className="text-xs font-bold text-[#F22550] uppercase tracking-wider">
           Our Purpose & Mission
         </span>
         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
@@ -33,8 +33,8 @@ export function AboutPage() {
           </p>
         </div>
 
-        <div className="bg-[#F0EBFF]/70 rounded-3xl p-8 border border-[#6741D9]/20 space-y-6">
-          <div className="w-12 h-12 rounded-2xl bg-[#6741D9] text-white flex items-center justify-center font-bold">
+        <div className="bg-[#FFE6EA]/70 rounded-3xl p-8 border border-[#F22550]/20 space-y-6">
+          <div className="w-12 h-12 rounded-2xl bg-[#F22550] text-white flex items-center justify-center font-bold">
             <Target className="w-6 h-6" />
           </div>
           <h3 className="text-xl font-bold text-gray-900">Our Commitments</h3>
@@ -48,7 +48,7 @@ export function AboutPage() {
               <span><strong>Creator First:</strong> Transparent 5% flat fee with zero monthly subscriptions.</span>
             </li>
             <li className="flex items-start gap-2.5">
-              <Globe className="w-4 h-4 text-[#6741D9] flex-shrink-0 mt-0.5" />
+              <Globe className="w-4 h-4 text-[#F22550] flex-shrink-0 mt-0.5" />
               <span><strong>Built for Africa:</strong> NGN ₦ native settlement with multi-market expansion architecture.</span>
             </li>
           </ul>
@@ -62,7 +62,7 @@ export function AboutPage() {
         </p>
         <Link
           to="/auth/register"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-[#6741D9] text-white font-bold text-sm rounded-xl hover:bg-[#5633C4]"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[#F22550] text-white font-bold text-sm rounded-xl hover:bg-[#D81A43]"
         >
           Create Your Page <ArrowRight className="w-4 h-4" />
         </Link>

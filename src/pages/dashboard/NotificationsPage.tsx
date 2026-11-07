@@ -62,7 +62,7 @@ export function NotificationsPage() {
       case 'goal_reached':
         return <Flame className="w-4 h-4 text-amber-500" />;
       default:
-        return <Bell className="w-4 h-4 text-[#6741D9]" />;
+        return <Bell className="w-4 h-4 text-[#F22550]" />;
     }
   };
 
@@ -71,7 +71,7 @@ export function NotificationsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
-            <Bell className="w-6 h-6 text-[#6741D9]" />
+            <Bell className="w-6 h-6 text-[#F22550]" />
             <span>Activity & Notifications</span>
           </h1>
           <p className="text-xs text-gray-500">
@@ -93,7 +93,7 @@ export function NotificationsPage() {
       <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-xs">
         {loading ? (
           <div className="py-16 flex justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[#6741D9]" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#F22550]" />
           </div>
         ) : notifications.length === 0 ? (
           <div className="py-16 text-center space-y-2">
@@ -112,7 +112,7 @@ export function NotificationsPage() {
                 key={n.id}
                 onClick={() => !n.isRead && handleMarkAsRead(n.id)}
                 className={`p-4 sm:p-5 flex items-start gap-4 transition-colors cursor-pointer ${
-                  n.isRead ? 'bg-white hover:bg-gray-50/50' : 'bg-[#F0EBFF]/30 hover:bg-[#F0EBFF]/50'
+                  n.isRead ? 'bg-white hover:bg-gray-50/50' : 'bg-[#FFE6EA]/30 hover:bg-[#FFE6EA]/50'
                 }`}
               >
                 <div className="p-2.5 rounded-2xl bg-white border border-gray-100 shadow-xs flex-shrink-0">
@@ -128,7 +128,7 @@ export function NotificationsPage() {
                 </div>
 
                 {!n.isRead && (
-                  <div className="w-2 h-2 rounded-full bg-[#6741D9] flex-shrink-0 mt-2" />
+                  <div className="w-2 h-2 rounded-full bg-[#F22550] flex-shrink-0 mt-2" />
                 )}
               </div>
             ))}

@@ -219,7 +219,7 @@ export function PayoutsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
-            <Landmark className="w-6 h-6 text-[#6741D9]" />
+            <Landmark className="w-6 h-6 text-[#F22550]" />
             <span>Payouts & Bank Transfers</span>
           </h1>
           <p className="text-xs text-gray-500">
@@ -243,7 +243,7 @@ export function PayoutsPage() {
                 setPayoutModalOpen(true);
               }}
               disabled={availableBalance < 2000}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-xl shadow-xs disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-xl shadow-xs disabled:opacity-50 transition-colors"
             >
               <ArrowUpRight className="w-4 h-4" />
               <span>Request Withdrawal</span>
@@ -257,7 +257,7 @@ export function PayoutsPage() {
         <div className="p-4 bg-indigo-50/60 border border-indigo-100 rounded-3xl space-y-3 animate-in fade-in">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
-              <FlaskConical className="w-4 h-4 text-[#6741D9]" />
+              <FlaskConical className="w-4 h-4 text-[#F22550]" />
               <span>Bachs.io Infrastructure & Webhook Test Suite</span>
             </h4>
             <span className="text-[10px] font-mono text-indigo-700 bg-indigo-100/70 px-2 py-0.5 rounded-md font-bold">
@@ -273,7 +273,7 @@ export function PayoutsPage() {
             <button
               onClick={() => handleTestWebhookSimulation('collection.succeeded')}
               disabled={testSimulating}
-              className="px-3 py-1.5 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1"
             >
               {testSimulating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
               <span>Simulate `collection.succeeded` Webhook</span>
@@ -338,7 +338,7 @@ export function PayoutsPage() {
 
           <button
             onClick={() => setShowBankForm(!showBankForm)}
-            className="text-xs font-bold text-[#6741D9] hover:underline text-left"
+            className="text-xs font-bold text-[#F22550] hover:underline text-left"
           >
             {account ? 'Update Bank Account' : '+ Add Bank Account'}
           </button>
@@ -347,7 +347,7 @@ export function PayoutsPage() {
 
       {/* Add Bank Form if expanded */}
       {showBankForm && (
-        <div className="bg-white rounded-3xl p-6 border border-[#6741D9]/20 shadow-sm space-y-4 animate-in fade-in">
+        <div className="bg-white rounded-3xl p-6 border border-[#F22550]/20 shadow-sm space-y-4 animate-in fade-in">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <h3 className="font-extrabold text-sm text-gray-900">Link Verified Bank Account</h3>
             <button onClick={() => setShowBankForm(false)} className="text-gray-400 hover:text-gray-600">
@@ -429,7 +429,7 @@ export function PayoutsPage() {
             <button
               type="submit"
               disabled={!accountVerified}
-              className="py-2.5 px-5 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-xl disabled:opacity-50"
+              className="py-2.5 px-5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-xl disabled:opacity-50"
             >
               Save Bank Account
             </button>
@@ -445,7 +445,7 @@ export function PayoutsPage() {
 
         {loading ? (
           <div className="py-12 flex justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-[#6741D9]" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#F22550]" />
           </div>
         ) : payouts.length === 0 ? (
           <div className="py-12 text-center text-xs text-gray-400">
@@ -586,7 +586,7 @@ export function PayoutsPage() {
                 <button
                   type="submit"
                   disabled={payoutSubmitting || payoutAmount < 2000 || payoutAmount > availableBalance}
-                  className="w-full py-3 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {payoutSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm Withdrawal Request'}
                 </button>

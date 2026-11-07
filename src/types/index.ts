@@ -13,7 +13,7 @@ export interface User {
   updatedAt: string;
 }
 
-export type ThemePreset = 'violet' | 'emerald' | 'amber' | 'rose' | 'ocean' | 'midnight';
+export type ThemePreset = 'crimson' | 'violet' | 'emerald' | 'amber' | 'rose' | 'ocean' | 'midnight';
 
 export interface SocialLinks {
   twitter?: string;

@@ -169,7 +169,7 @@ export function CampaignsListPage() {
 
         <Link
           to="/dashboard/campaigns/new"
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
         >
           <PlusCircle className="w-4 h-4" />
           <span>Create New Campaign</span>
@@ -185,7 +185,7 @@ export function CampaignsListPage() {
             placeholder="Search campaigns by title, category, or summary..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9]"
+            className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
           />
         </div>
 
@@ -207,12 +207,12 @@ export function CampaignsListPage() {
       {/* Campaigns Grid / List */}
       {loading ? (
         <div className="py-16 flex flex-col items-center justify-center space-y-2">
-          <Loader2 className="w-8 h-8 animate-spin text-[#6741D9]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#F22550]" />
           <p className="text-xs text-gray-400">Loading your campaigns...</p>
         </div>
       ) : filteredCampaigns.length === 0 ? (
         <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center space-y-4 shadow-xs">
-          <div className="w-16 h-16 rounded-2xl bg-[#F0EBFF] text-[#6741D9] flex items-center justify-center mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-[#FFE6EA] text-[#F22550] flex items-center justify-center mx-auto">
             <Flame className="w-8 h-8" />
           </div>
           <div className="space-y-1">
@@ -227,7 +227,7 @@ export function CampaignsListPage() {
           </div>
           <Link
             to="/dashboard/campaigns/new"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#6741D9] text-white font-bold text-xs rounded-xl shadow-xs"
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#F22550] text-white font-bold text-xs rounded-xl shadow-xs"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Launch First Campaign</span>
@@ -286,7 +286,7 @@ export function CampaignsListPage() {
                     {/* Progress track */}
                     <div className="space-y-1 max-w-md">
                       <div className="flex justify-between text-xs">
-                        <span className="font-bold text-[#6741D9]">
+                        <span className="font-bold text-[#F22550]">
                           {formatCurrency(camp.amountRaised)}
                         </span>
                         <span className="text-gray-400">
@@ -295,7 +295,7 @@ export function CampaignsListPage() {
                       </div>
                       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-[#6741D9] to-indigo-500 rounded-full transition-all duration-500"
+                          className="h-full bg-gradient-to-r from-[#F22550] to-indigo-500 rounded-full transition-all duration-500"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
@@ -303,7 +303,7 @@ export function CampaignsListPage() {
 
                     <div className="flex items-center gap-4 text-[11px] text-gray-400 pt-1">
                       <span className="flex items-center gap-1 font-medium text-gray-600">
-                        <Users className="w-3.5 h-3.5 text-[#6741D9]" /> {camp.contributorCount || 0} verified backers
+                        <Users className="w-3.5 h-3.5 text-[#F22550]" /> {camp.contributorCount || 0} verified backers
                       </span>
                       {camp.deadline && (
                         <span className="flex items-center gap-1">
@@ -336,7 +336,7 @@ export function CampaignsListPage() {
 
                   <button
                     onClick={() => handleOpenUpdatesModal(camp)}
-                    className="flex-1 md:w-40 py-2 px-3 text-center text-xs font-semibold text-[#6741D9] bg-[#F0EBFF] hover:bg-[#E5DBFF] rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                    className="flex-1 md:w-40 py-2 px-3 text-center text-xs font-semibold text-[#F22550] bg-[#FFE6EA] hover:bg-[#FFCCD5] rounded-xl flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Milestone Updates</span>
@@ -460,7 +460,7 @@ export function CampaignsListPage() {
                   placeholder="e.g. Batteries arrived in Lagos! Testing inverter setup"
                   value={updateTitle}
                   onChange={(e) => setUpdateTitle(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9] bg-white"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550] bg-white"
                 />
               </div>
 
@@ -474,7 +474,7 @@ export function CampaignsListPage() {
                   placeholder="Share progress photos, milestones achieved, and next steps with your backers..."
                   value={updateContent}
                   onChange={(e) => setUpdateContent(e.target.value)}
-                  className="w-full p-3 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9] resize-none bg-white"
+                  className="w-full p-3 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550] resize-none bg-white"
                 />
               </div>
 
@@ -487,14 +487,14 @@ export function CampaignsListPage() {
                   placeholder="https://images.unsplash.com/..."
                   value={updateImage}
                   onChange={(e) => setUpdateImage(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9] bg-white"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550] bg-white"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={postingUpdate}
-                className="w-full py-2.5 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-2.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {postingUpdate ? (
                   <>
@@ -515,7 +515,7 @@ export function CampaignsListPage() {
 
               {loadingUpdates ? (
                 <div className="py-4 text-center">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#6741D9] mx-auto" />
+                  <Loader2 className="w-5 h-5 animate-spin text-[#F22550] mx-auto" />
                 </div>
               ) : campaignUpdatesList.length === 0 ? (
                 <p className="text-xs text-gray-400 italic">No milestone updates posted yet.</p>

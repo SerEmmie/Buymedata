@@ -56,7 +56,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFC]">
-        <div className="w-10 h-10 rounded-full border-4 border-[#6741D9]/20 border-t-[#6741D9] animate-spin" />
+        <div className="w-10 h-10 rounded-full border-4 border-[#F22550]/20 border-t-[#F22550] animate-spin" />
       </div>
     );
   }
@@ -70,7 +70,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         </p>
         <Link
           to="/auth/login"
-          className="px-5 py-2.5 bg-[#6741D9] text-white font-bold text-xs rounded-xl shadow-xs"
+          className="px-5 py-2.5 bg-[#F22550] text-white font-bold text-xs rounded-xl shadow-xs"
         >
           Sign In
         </Link>

@@ -37,13 +37,13 @@ export function SupportBox({ creator, campaign, onContributionSuccess }: Support
           <div>
             <h3 className="font-extrabold text-lg text-gray-900 flex items-center gap-2">
               <span>{creator.supportButtonText || 'Buy me data'}</span>
-              <Sparkles className="w-4 h-4 text-[#6741D9]" />
+              <Sparkles className="w-4 h-4 text-[#F22550]" />
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
               Support {creator.displayName} with quick, direct funding
             </p>
           </div>
-          <span className="text-[11px] font-bold px-2 py-0.5 bg-[#F0EBFF] text-[#6741D9] rounded-md">
+          <span className="text-[11px] font-bold px-2 py-0.5 bg-[#FFE6EA] text-[#F22550] rounded-md">
             NGN ₦
           </span>
         </div>
@@ -63,8 +63,8 @@ export function SupportBox({ creator, campaign, onContributionSuccess }: Support
                   onClick={() => handleSelectPreset(amt)}
                   className={`py-2 px-1 text-center font-bold text-sm rounded-xl border transition-all ${
                     isSelected
-                      ? 'bg-[#6741D9] text-white border-[#6741D9] shadow-sm shadow-[#6741D9]/25 scale-102'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-[#6741D9]/40 hover:bg-gray-50'
+                      ? 'bg-[#F22550] text-white border-[#F22550] shadow-sm shadow-[#F22550]/25 scale-102'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-[#F22550]/40 hover:bg-gray-50'
                   }`}
                 >
                   {formatCurrency(amt)}
@@ -83,7 +83,7 @@ export function SupportBox({ creator, campaign, onContributionSuccess }: Support
               placeholder="Custom amount (e.g. 10000)"
               value={customAmount}
               onChange={(e) => handleCustomInput(e.target.value)}
-              className="w-full pl-8 pr-4 py-2.5 text-sm font-semibold text-gray-800 placeholder-gray-400 bg-gray-50/60 rounded-xl border border-gray-200 focus:outline-none focus:bg-white focus:border-[#6741D9] focus:ring-1 focus:ring-[#6741D9]"
+              className="w-full pl-8 pr-4 py-2.5 text-sm font-semibold text-gray-800 placeholder-gray-400 bg-gray-50/60 rounded-xl border border-gray-200 focus:outline-none focus:bg-white focus:border-[#F22550] focus:ring-1 focus:ring-[#F22550]"
               min={200}
             />
           </div>
@@ -93,7 +93,7 @@ export function SupportBox({ creator, campaign, onContributionSuccess }: Support
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="w-full py-3.5 px-4 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-sm rounded-xl shadow-md shadow-[#6741D9]/25 transition-all flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.01]"
+          className="w-full py-3.5 px-4 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-sm rounded-xl shadow-md shadow-[#F22550]/25 transition-all flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.01]"
         >
           <Heart className="w-4 h-4 fill-white" />
           <span>

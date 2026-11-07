@@ -61,7 +61,7 @@ export function EarningsLedgerPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
-            <PieChart className="w-6 h-6 text-[#6741D9]" />
+            <PieChart className="w-6 h-6 text-[#F22550]" />
             <span>Earnings & Financial Ledger</span>
           </h1>
           <p className="text-xs text-gray-500">
@@ -131,7 +131,7 @@ export function EarningsLedgerPage() {
 
         {loading ? (
           <div className="py-12 flex justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-[#6741D9]" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#F22550]" />
           </div>
         ) : ledgerEntries.length === 0 ? (
           <div className="py-12 text-center text-xs text-gray-400">

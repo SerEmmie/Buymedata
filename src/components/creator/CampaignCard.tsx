@@ -6,10 +6,11 @@ import { Calendar, Users, ArrowRight } from 'lucide-react';
 
 interface CampaignCardProps {
   campaign: Campaign;
-  creatorUsername: string;
+  creatorUsername?: string;
 }
 
 export function CampaignCard({ campaign, creatorUsername }: CampaignCardProps) {
+  const username = creatorUsername || 'folatech';
   const progress = calculateProgress(campaign.amountRaised, campaign.targetAmount);
 
   // Calculate days remaining
@@ -19,7 +20,7 @@ export function CampaignCard({ campaign, creatorUsername }: CampaignCardProps) {
     daysRemaining = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }
 
-  const campaignUrl = `/${creatorUsername}/campaigns/${campaign.slug}`;
+  const campaignUrl = `/@${username.replace(/^@/, '')}/campaigns/${campaign.slug}`;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col group">
@@ -59,7 +60,7 @@ export function CampaignCard({ campaign, creatorUsername }: CampaignCardProps) {
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div>
           <Link to={campaignUrl}>
-            <h4 className="font-bold text-gray-900 group-hover:text-[#6741D9] transition-colors line-clamp-2 text-base">
+            <h4 className="font-bold text-gray-900 group-hover:text-[#F22550] transition-colors line-clamp-2 text-base">
               {campaign.title}
             </h4>
           </Link>
@@ -71,7 +72,7 @@ export function CampaignCard({ campaign, creatorUsername }: CampaignCardProps) {
         {/* Progress bar and stats */}
         <div className="space-y-2 pt-2 border-t border-gray-50">
           <div className="flex justify-between items-baseline text-xs">
-            <span className="font-bold text-sm text-[#6741D9]">
+            <span className="font-bold text-sm text-[#F22550]">
               {formatCurrency(campaign.amountRaised)}
             </span>
             <span className="text-gray-400">
@@ -82,7 +83,7 @@ export function CampaignCard({ campaign, creatorUsername }: CampaignCardProps) {
           {/* Progress track */}
           <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#6741D9] to-[#8C68FF] rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-[#F22550] to-[#FF4D73] rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -107,7 +108,7 @@ export function CampaignCard({ campaign, creatorUsername }: CampaignCardProps) {
         {/* Action Link */}
         <Link
           to={campaignUrl}
-          className="w-full py-2 px-3 text-center text-xs font-bold text-[#6741D9] bg-[#F0EBFF] hover:bg-[#E5DBFF] rounded-xl transition-colors flex items-center justify-center gap-1"
+          className="w-full py-2 px-3 text-center text-xs font-bold text-[#F22550] bg-[#FFE6EA] hover:bg-[#FFCCD5] rounded-xl transition-colors flex items-center justify-center gap-1"
         >
           <span>View Campaign</span>
           <ArrowRight className="w-3.5 h-3.5" />

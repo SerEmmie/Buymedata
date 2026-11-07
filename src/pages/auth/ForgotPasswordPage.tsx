@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from '../../router';
 import { resetPassword } from '../../services/authService';
 import { Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -28,14 +29,9 @@ export function ForgotPasswordPage() {
     <div className="min-h-[75vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 space-y-6">
         <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-[#6741D9] text-white flex items-center justify-center font-bold">
-              B
-            </div>
-            <span className="font-extrabold text-xl text-gray-900">
-              BuyMe<span className="text-[#6741D9]">Data</span>
-            </span>
-          </Link>
+          <div className="flex justify-center">
+            <BrandLogo size="md" showSlogan={false} />
+          </div>
           <h2 className="text-xl font-bold text-gray-900 pt-1">Reset your password</h2>
           <p className="text-xs text-gray-500">
             Enter your email and we'll send you instructions to reset your account password.
@@ -54,7 +50,7 @@ export function ForgotPasswordPage() {
             <div className="pt-2">
               <Link
                 to="/auth/login"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6741D9] hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F22550] hover:underline"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to sign in
               </Link>
@@ -81,7 +77,7 @@ export function ForgotPasswordPage() {
                   placeholder="you@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#6741D9] focus:ring-1 focus:ring-[#6741D9]"
+                  className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550] focus:ring-1 focus:ring-[#F22550]"
                 />
               </div>
             </div>
@@ -89,7 +85,7 @@ export function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#6741D9] hover:bg-[#5633C4] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <span>{loading ? 'Sending link...' : 'Send Reset Link'}</span>
             </button>
