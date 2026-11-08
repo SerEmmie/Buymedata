@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { bachsClient } from './src/server/bachs';
 import { verifyAndFinalizePayment } from './src/server/ledger';
 import { processServerPayout, calculateServerCreatorBalance } from './src/server/payouts';
+import { getPostgresCreatorByUsername, getPostgresCampaignsByCreator, upsertPostgresCreatorProfile } from './src/db/repository.ts';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
     status: 'ok',
     app: 'BuyMeData',
     currency: 'NGN',
+    database: 'postgresql',
     paymentProvider: 'bachs',
     configured: bachsClient.hasValidKey(),
     mode: bachsClient.getMode(),
@@ -248,7 +250,46 @@ app.post('/api/payouts/initiate', async (req: Request, res: Response) => {
 });
 
 // -------------------------------------------------------------
-// 7. VITE / STATIC CLIENT MOUNTING
+// 7. POSTGRESQL RELATIONAL APIS (CLOUD SQL & DRIZZLE ORM)
+// -------------------------------------------------------------
+app.get('/api/db/creators/:username', async (req: Request, res: Response) => {
+  try {
+    const creator = await getPostgresCreatorByUsername(req.params.username);
+    if (!creator) return res.status(404).json({ error: 'Creator not found in PostgreSQL database.' });
+    const camps = await getPostgresCampaignsByCreator(creator.userId);
+    return res.json({ success: true, creator, campaigns: camps });
+  } catch (err) {
+    console.error('Postgres creator lookup error:', err);
+    return res.status(500).json({ error: 'Failed to query creator profile from database.' });
+  }
+});
+
+app.post('/api/db/creators/sync', async (req: Request, res: Response) => {
+  try {
+    const { userId, displayName, username, biography, category, profileImage, coverImage, website, theme } = req.body;
+    if (!userId || !displayName || !username) {
+      return res.status(400).json({ error: 'Missing required creator sync fields: userId, displayName, username' });
+    }
+    const profile = await upsertPostgresCreatorProfile({
+      userId,
+      displayName,
+      username,
+      biography,
+      category,
+      profileImage,
+      coverImage,
+      website,
+      theme,
+    });
+    return res.json({ success: true, profile });
+  } catch (err) {
+    console.error('Postgres creator sync error:', err);
+    return res.status(500).json({ error: 'Failed to sync creator to PostgreSQL.' });
+  }
+});
+
+// -------------------------------------------------------------
+// 8. VITE / STATIC CLIENT MOUNTING
 // -------------------------------------------------------------
 async function startServer() {
   if (!isProduction) {

@@ -168,6 +168,25 @@ export async function saveCreatorProfile(profile: Partial<CreatorProfile> & { us
       }, { merge: true }).catch(console.warn);
     }
 
+    // Sync to PostgreSQL database
+    if (typeof window !== 'undefined') {
+      fetch('/api/db/creators/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: fullProfile.userId,
+          displayName: fullProfile.displayName,
+          username: fullProfile.username,
+          biography: fullProfile.biography,
+          category: fullProfile.category,
+          profileImage: fullProfile.profileImage,
+          coverImage: fullProfile.coverImage,
+          website: fullProfile.website,
+          theme: fullProfile.theme,
+        }),
+      }).catch((syncErr) => console.warn('PostgreSQL sync notice:', syncErr));
+    }
+
     return fullProfile;
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, `creatorProfiles/${docId}`);
