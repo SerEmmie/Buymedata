@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from '../../router';
 import { useAuth } from '../../context/AuthContext';
-import { loginWithEmail, loginWithGoogle, sendOneTimeEmailLink, completeEmailLinkSignIn } from '../../services/authService';
+import { loginWithEmail, loginWithGoogle, sendOneTimeEmailLink } from '../../services/authService';
 import { BrandLogo } from '../../components/ui/BrandLogo';
 import { AlertCircle, Eye, EyeOff, Lock, Mail, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 
@@ -14,32 +14,24 @@ export function LoginPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { refreshProfiles } = useAuth();
+  const { refreshProfiles, authUser } = useAuth();
 
-  // Check if landing from an email link
+  // Redirect to dashboard once Supabase Auth session is active (including after OAuth or Magic Link return)
   useEffect(() => {
-    const handleEmailLinkOnLoad = async () => {
-      const fullUrl = window.location.href;
-      if (fullUrl.includes('apiKey=') || fullUrl.includes('mode=signIn')) {
-        const storedEmail = window.localStorage.getItem('emailForSignIn') || '';
-        const targetEmail = storedEmail || prompt('Please enter your email to complete sign in:');
-        if (targetEmail) {
-          try {
-            setLoading(true);
-            await completeEmailLinkSignIn(targetEmail);
-            await refreshProfiles();
-            navigate('/dashboard');
-          } catch (err: unknown) {
-            console.error('Email link completion error:', err);
-            setErrorMsg('Unable to verify magic link. Please sign in with password or request a new link.');
-          } finally {
-            setLoading(false);
-          }
-        }
-      }
-    };
-    handleEmailLinkOnLoad();
-  }, [navigate, refreshProfiles]);
+    if (authUser) {
+      navigate('/dashboard');
+    }
+  }, [authUser, navigate]);
+
+  // Surface any error parameters returned by Supabase OAuth / Magic Link callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const errDesc = params.get('error_description') || hashParams.get('error_description');
+    if (errDesc) {
+      setErrorMsg(decodeURIComponent(errDesc.replace(/\+/g, ' ')));
+    }
+  }, []);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,11 +49,13 @@ export function LoginPage() {
       }
     } catch (err: unknown) {
       console.error('Login error:', err);
-      const code = err instanceof Error ? err.message : String(err);
-      if (code.includes('user-not-found') || code.includes('wrong-password') || code.includes('invalid-credential')) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.toLowerCase().includes('invalid login credentials')) {
         setErrorMsg('Invalid email or password. Please verify your credentials.');
+      } else if (msg.toLowerCase().includes('email not confirmed')) {
+        setErrorMsg('Please confirm your email address using the link sent to your inbox.');
       } else {
-        setErrorMsg('Failed to sign in. Please check your credentials and try again.');
+        setErrorMsg(msg || 'Failed to sign in. Please check your credentials and try again.');
       }
     } finally {
       setLoading(false);
@@ -73,12 +67,14 @@ export function LoginPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
-      await refreshProfiles();
-      navigate('/dashboard');
+      // Browser redirects to Google OAuth; keep spinner active
     } catch (err: unknown) {
       console.error('Google login error:', err);
-      setErrorMsg('Google sign-in was cancelled or encountered an error.');
-    } finally {
+      setErrorMsg(
+        err instanceof Error
+          ? err.message
+          : 'Google sign-in could not be initiated. Please try again.'
+      );
       setLoading(false);
     }
   };

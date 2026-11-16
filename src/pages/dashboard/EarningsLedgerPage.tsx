@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase/config';
+import { supabase } from '../../lib/supabaseClient';
 import { getCreatorFinancialSummary } from '../../services/paymentService';
-import { LedgerEntry } from '../../types';
+import { LedgerEntry, LedgerAccountType, LedgerEntryType } from '../../types';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import {
   PieChart,
@@ -35,18 +34,31 @@ export function EarningsLedgerPage() {
     const loadLedger = async () => {
       setLoading(true);
       try {
-        const [fin, ledgerSnap] = await Promise.all([
+        const [fin, ledgerRes] = await Promise.all([
           getCreatorFinancialSummary(fbUser.uid),
-          getDocs(
-            query(
-              collection(db, 'ledgerEntries'),
-              where('accountOwner', '==', fbUser.uid)
-            )
-          ),
+          supabase
+            .from('ledger_entries')
+            .select('*')
+            .eq('account_owner', fbUser.uid)
+            .order('created_at', { ascending: false }),
         ]);
         setFinancials(fin);
-        const entries = ledgerSnap.docs.map((d) => ({ id: d.id, ...d.data() } as LedgerEntry));
-        setLedgerEntries(entries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+        if (ledgerRes.error) {
+          console.error('Error loading ledger entries:', ledgerRes.error.message);
+        }
+        const entries: LedgerEntry[] = (ledgerRes.data || []).map((row: any) => ({
+          id: row.id,
+          ledgerTransactionId: row.ledger_transaction_id,
+          accountOwner: row.account_owner,
+          accountType: row.account_type as LedgerAccountType,
+          entryType: row.entry_type as LedgerEntryType,
+          amount: Number(row.amount || 0),
+          currency: row.currency || 'NGN',
+          description: row.description || '',
+          referenceId: row.reference_id,
+          createdAt: row.created_at,
+        }));
+        setLedgerEntries(entries);
       } catch (err) {
         console.error('Error loading ledger:', err);
       } finally {

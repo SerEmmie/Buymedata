@@ -1,22 +1,151 @@
+import { User as SupabaseUser } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
+import { User, UserRole } from '../types';
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut as fbSignOut,
-  sendPasswordResetEmail,
-  sendSignInLinkToEmail,
-  isSignInWithEmailLink,
-  signInWithEmailLink,
-  User as FbUser,
-} from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase/config';
-import { handleFirestoreError, OperationType } from '../firebase/errors';
-import { User, UserRole, CreatorProfile } from '../types';
-import { saveCreatorProfile, getCreatorProfileByUserId } from './creatorService';
+  saveCreatorProfile,
+  getCreatorProfileByUserId,
+  checkUsernameAvailability,
+} from './creatorService';
 
-const googleProvider = new GoogleAuthProvider();
+export interface AuthUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  emailVerified: boolean;
+}
+
+export function mapSupabaseUser(su: SupabaseUser): AuthUser {
+  const meta = su.user_metadata || {};
+  return {
+    uid: su.id,
+    email: su.email || null,
+    displayName: meta.full_name || meta.name || su.email?.split('@')[0] || 'Creator',
+    photoURL: meta.avatar_url || meta.picture || null,
+    emailVerified: Boolean(su.email_confirmed_at || su.confirmed_at),
+  };
+}
+
+function sanitizeUsernameCandidate(raw: string): string {
+  const cleaned = raw
+    .toLowerCase()
+    .trim()
+    .replace(/^@/, '')
+    .replace(/[^a-z0-9_]/g, '')
+    .slice(0, 24);
+  return cleaned.length >= 3 ? cleaned : `creator_${Math.random().toString(36).slice(2, 6)}`;
+}
+
+async function resolveUniqueUsername(candidate: string, currentUserId: string): Promise<string> {
+  const base = sanitizeUsernameCandidate(candidate);
+  const avail = await checkUsernameAvailability(base, currentUserId);
+  if (avail) return base;
+  return `${base.slice(0, 20)}_${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function mapDbUser(row: Record<string, any>): User {
+  return {
+    uid: row.id,
+    fullName: row.full_name || 'Creator',
+    email: row.email || '',
+    username: row.username || '',
+    role: (row.role || 'creator') as UserRole,
+    accountStatus: row.account_status || 'active',
+    emailVerified: Boolean(row.email_verified),
+    createdAt: row.created_at || new Date().toISOString(),
+    updatedAt: row.updated_at || new Date().toISOString(),
+  };
+}
+
+/**
+ * Ensures the signed-in Supabase Auth user has corresponding rows in
+ * `public.users` and `public.creator_profiles`. Runs safely on signup, login,
+ * Google OAuth callback, and Magic Link return.
+ */
+export async function ensureUserAndCreatorProfile(
+  su: SupabaseUser,
+  preferredUsername?: string
+): Promise<User | null> {
+  if (!isSupabaseConfigured()) return null;
+
+  const existingUser = await getUserProfile(su.id);
+  const meta = su.user_metadata || {};
+  const storedClaim =
+    typeof window !== 'undefined'
+      ? window.localStorage.getItem('buymedata_claimed_username') || ''
+      : '';
+
+  const rawName =
+    meta.full_name ||
+    meta.name ||
+    existingUser?.fullName ||
+    su.email?.split('@')[0] ||
+    'Creator';
+
+  let userRecord = existingUser;
+
+  if (!userRecord) {
+    const candidate =
+      preferredUsername ||
+      meta.claimed_username ||
+      storedClaim ||
+      su.email?.split('@')[0] ||
+      `user_${su.id.slice(0, 6)}`;
+
+    const uniqueUsername = await resolveUniqueUsername(candidate, su.id);
+    const finalRole: UserRole = su.email === 'EmmybikeCEO@gmail.com' ? 'admin' : 'creator';
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from('users')
+      .upsert(
+        {
+          id: su.id,
+          email: su.email || '',
+          full_name: rawName,
+          username: uniqueUsername,
+          role: finalRole,
+          account_status: 'active',
+          email_verified: Boolean(su.email_confirmed_at || su.confirmed_at),
+          created_at: now,
+          updated_at: now,
+        },
+        { onConflict: 'id' }
+      )
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('Error creating user profile in Supabase:', error.message);
+      throw new Error(error.message);
+    }
+
+    userRecord = mapDbUser(data);
+  }
+
+  // Ensure Creator Profile exists
+  const existingCreator = await getCreatorProfileByUserId(su.id);
+  if (!existingCreator && (userRecord.role === 'creator' || userRecord.role === 'admin')) {
+    const creatorUsername = await resolveUniqueUsername(
+      userRecord.username || preferredUsername || storedClaim || rawName,
+      su.id
+    );
+    await saveCreatorProfile({
+      userId: su.id,
+      displayName: userRecord.fullName || rawName,
+      username: creatorUsername,
+      profileImage: meta.avatar_url || meta.picture || undefined,
+      published: true,
+      theme: 'crimson',
+    }).catch((err) => console.warn('Creator profile auto-init notice:', err));
+  }
+
+  if (typeof window !== 'undefined' && storedClaim) {
+    window.localStorage.removeItem('buymedata_claimed_username');
+  }
+
+  return userRecord;
+}
 
 export async function registerWithEmail(
   fullName: string,
@@ -24,203 +153,161 @@ export async function registerWithEmail(
   password: string,
   username: string,
   role: UserRole = 'creator'
-): Promise<User> {
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
-  const fbUser = cred.user;
-  const cleanUsername = username.toLowerCase().trim().replace(/^@/, '');
-
-  // Check admin override for bootstrapped administrator
-  const finalRole: UserRole = fbUser.email === 'EmmybikeCEO@gmail.com' ? 'admin' : (role === 'admin' ? 'creator' : role);
-
-  const newUser: User = {
-    uid: fbUser.uid,
-    fullName,
-    email: fbUser.email || email,
-    username: cleanUsername,
-    role: finalRole,
-    accountStatus: 'active',
-    emailVerified: fbUser.emailVerified,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  try {
-    await setDoc(doc(db, 'users', fbUser.uid), newUser);
-    
-    // Automatically initialize Creator Profile so their page is live and they can go straight to the dashboard
-    if (finalRole === 'creator' || finalRole === 'admin') {
-      await saveCreatorProfile({
-        userId: fbUser.uid,
-        displayName: fullName || 'Creator',
-        username: cleanUsername,
-        published: true,
-        theme: 'crimson',
-      }).catch(console.warn);
-    }
-  } catch (err) {
-    handleFirestoreError(err, OperationType.CREATE, `users/${fbUser.uid}`);
+): Promise<{ user: AuthUser; sessionActive: boolean }> {
+  if (!isSupabaseConfigured()) {
+    throw new Error(
+      'Supabase is not configured yet. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.'
+    );
   }
 
-  return newUser;
+  const cleanUsername = sanitizeUsernameCandidate(username);
+  const redirectUrl =
+    typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : undefined;
+
+  const { data, error } = await supabase.auth.signUp({
+    email: email.trim(),
+    password,
+    options: {
+      emailRedirectTo: redirectUrl,
+      data: {
+        full_name: fullName || cleanUsername,
+        claimed_username: cleanUsername,
+        requested_role: role === 'admin' ? 'creator' : role,
+      },
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data.user) {
+    throw new Error('Registration did not return a user account. Please try again.');
+  }
+
+  if (data.session) {
+    await ensureUserAndCreatorProfile(data.user, cleanUsername);
+    return { user: mapSupabaseUser(data.user), sessionActive: true };
+  }
+
+  // Email confirmation is enabled in Supabase: save username hint for first verified login
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem('buymedata_claimed_username', cleanUsername);
+  }
+
+  return { user: mapSupabaseUser(data.user), sessionActive: false };
 }
 
-export async function loginWithEmail(email: string, password: string): Promise<FbUser> {
-  const cred = await signInWithEmailAndPassword(auth, email, password);
-  return cred.user;
+export async function loginWithEmail(email: string, password: string): Promise<AuthUser> {
+  if (!isSupabaseConfigured()) {
+    throw new Error(
+      'Supabase is not configured yet. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.'
+    );
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data.user) {
+    throw new Error('Sign in succeeded but no user was returned.');
+  }
+
+  await ensureUserAndCreatorProfile(data.user);
+  return mapSupabaseUser(data.user);
 }
 
 /**
- * Sends a passwordless one-time authentication link to the user's email.
+ * Sends a passwordless one-time magic link to the user's email via Supabase Auth.
  */
-export async function sendOneTimeEmailLink(email: string): Promise<void> {
-  const actionCodeSettings = {
-    url: `${window.location.origin}/auth/login?emailLink=true`,
-    handleCodeInApp: true,
-  };
-  await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-  window.localStorage.setItem('buymedata_email_for_link', email);
-}
-
-/**
- * Completes sign-in with the one-time email link.
- */
-export async function completeEmailLinkSignIn(
+export async function sendOneTimeEmailLink(
   email: string,
   claimedUsername?: string
-): Promise<{ fbUser: FbUser; isNew: boolean }> {
-  if (!isSignInWithEmailLink(auth, window.location.href)) {
-    throw new Error('Invalid or expired email sign-in link.');
+): Promise<void> {
+  if (!isSupabaseConfigured()) {
+    throw new Error(
+      'Supabase is not configured yet. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.'
+    );
   }
 
-  const cred = await signInWithEmailLink(auth, email, window.location.href);
-  const fbUser = cred.user;
-  window.localStorage.removeItem('buymedata_email_for_link');
-
-  const userDocRef = doc(db, 'users', fbUser.uid);
-  let userSnap;
-  try {
-    userSnap = await getDoc(userDocRef);
-  } catch (err) {
-    handleFirestoreError(err, OperationType.GET, `users/${fbUser.uid}`);
+  const cleanClaim = claimedUsername ? sanitizeUsernameCandidate(claimedUsername) : undefined;
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem('buymedata_email_for_link', email.trim());
+    if (cleanClaim) {
+      window.localStorage.setItem('buymedata_claimed_username', cleanClaim);
+    }
   }
 
-  if (!userSnap.exists()) {
-    const rawName = fbUser.displayName || email.split('@')[0];
-    const cleanUsername = (claimedUsername || email.split('@')[0] || `user_${Date.now()}`)
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9_]/g, '')
-      .slice(0, 30);
+  const { error } = await supabase.auth.signInWithOtp({
+    email: email.trim(),
+    options: {
+      emailRedirectTo:
+        typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : undefined,
+      data: cleanClaim ? { claimed_username: cleanClaim } : undefined,
+    },
+  });
 
-    const finalRole: UserRole = fbUser.email === 'EmmybikeCEO@gmail.com' ? 'admin' : 'creator';
-
-    const newUser: User = {
-      uid: fbUser.uid,
-      fullName: rawName,
-      email: fbUser.email || email,
-      username: cleanUsername,
-      role: finalRole,
-      accountStatus: 'active',
-      emailVerified: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    await setDoc(userDocRef, newUser);
-
-    // Initialize Creator Profile immediately
-    await saveCreatorProfile({
-      userId: fbUser.uid,
-      displayName: rawName,
-      username: cleanUsername,
-      published: true,
-      theme: 'crimson',
-    }).catch(console.warn);
-
-    return { fbUser, isNew: true };
+  if (error) {
+    throw new Error(error.message);
   }
-
-  return { fbUser, isNew: false };
 }
 
-export async function loginWithGoogle(claimedUsername?: string): Promise<{ fbUser: FbUser; isNew: boolean }> {
-  const cred = await signInWithPopup(auth, googleProvider);
-  const fbUser = cred.user;
-
-  // Check if profile exists in users collection
-  const userDocRef = doc(db, 'users', fbUser.uid);
-  let userSnap;
-  try {
-    userSnap = await getDoc(userDocRef);
-  } catch (err) {
-    handleFirestoreError(err, OperationType.GET, `users/${fbUser.uid}`);
+/**
+ * Initiates Google OAuth sign-in via Supabase Auth.
+ * Supabase redirects the browser to Google and back to `/dashboard`.
+ */
+export async function loginWithGoogle(claimedUsername?: string): Promise<void> {
+  if (!isSupabaseConfigured()) {
+    throw new Error(
+      'Supabase is not configured yet. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.'
+    );
   }
 
-  if (!userSnap.exists()) {
-    const rawName = fbUser.displayName || 'Creator';
-    const fallbackUsername = (fbUser.email?.split('@')[0] || `user_${Date.now()}`)
-      .toLowerCase()
-      .replace(/[^a-z0-9_]/g, '')
-      .slice(0, 30);
-
-    const cleanUsername = (claimedUsername || fallbackUsername).toLowerCase().trim().replace(/^@/, '');
-    const finalRole: UserRole = fbUser.email === 'EmmybikeCEO@gmail.com' ? 'admin' : 'creator';
-
-    const newUser: User = {
-      uid: fbUser.uid,
-      fullName: rawName,
-      email: fbUser.email || '',
-      username: cleanUsername,
-      role: finalRole,
-      accountStatus: 'active',
-      emailVerified: fbUser.emailVerified,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    try {
-      await setDoc(userDocRef, newUser);
-
-      // Automatically initialize Creator Profile so their page is live and they can go straight to the dashboard
-      await saveCreatorProfile({
-        userId: fbUser.uid,
-        displayName: rawName,
-        username: cleanUsername,
-        profileImage: fbUser.photoURL || undefined,
-        published: true,
-        theme: 'crimson',
-      }).catch(console.warn);
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `users/${fbUser.uid}`);
-    }
-
-    return { fbUser, isNew: true };
-  } else {
-    // If existing user already has a user doc, make sure creator profile is also ensured
-    const existingProfile = await getCreatorProfileByUserId(fbUser.uid);
-    if (!existingProfile) {
-      const uData = userSnap.data() as User;
-      await saveCreatorProfile({
-        userId: fbUser.uid,
-        displayName: uData.fullName || fbUser.displayName || 'Creator',
-        username: uData.username || claimedUsername || fbUser.email?.split('@')[0] || `user_${Date.now()}`,
-        profileImage: fbUser.photoURL || undefined,
-        published: true,
-        theme: 'crimson',
-      }).catch(console.warn);
-    }
+  if (typeof window !== 'undefined' && claimedUsername) {
+    window.localStorage.setItem(
+      'buymedata_claimed_username',
+      sanitizeUsernameCandidate(claimedUsername)
+    );
   }
 
-  return { fbUser, isNew: false };
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo:
+        typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : undefined,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'select_account',
+      },
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function getUserProfile(uid: string): Promise<User | null> {
+  if (!uid || !isSupabaseConfigured()) return null;
+
   try {
-    const snap = await getDoc(doc(db, 'users', uid));
-    if (snap.exists()) {
-      return snap.data() as User;
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', uid)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Failed to get user profile from Supabase:', error.message);
+      return null;
     }
-    return null;
+
+    return data ? mapDbUser(data) : null;
   } catch (err) {
     console.error('Failed to get user profile:', err);
     return null;
@@ -228,9 +315,24 @@ export async function getUserProfile(uid: string): Promise<User | null> {
 }
 
 export async function resetPassword(email: string): Promise<void> {
-  await sendPasswordResetEmail(auth, email);
+  if (!isSupabaseConfigured()) {
+    throw new Error('Supabase is not configured yet.');
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+    redirectTo:
+      typeof window !== 'undefined' ? `${window.location.origin}/dashboard/settings` : undefined,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function logoutUser(): Promise<void> {
-  await fbSignOut(auth);
+  if (!isSupabaseConfigured()) return;
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error('Supabase sign out error:', error.message);
+  }
 }

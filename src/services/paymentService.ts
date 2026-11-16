@@ -1,45 +1,73 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-  increment,
-  writeBatch,
-} from 'firebase/firestore';
-import { db } from '../firebase/config';
-import { handleFirestoreError, OperationType } from '../firebase/errors';
+import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 import {
   Contribution,
   PaymentTransaction,
-  LedgerEntry,
   PaymentProvider,
+  PaymentStatus,
   PlatformSettings,
 } from '../types';
-import { createNotification } from './notificationService';
 
 export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
-  platformFeePercentage: 5.0, // 5%
-  minimumContribution: 200, // ₦200
-  maximumContribution: 5000000, // ₦5,000,000
-  minimumPayout: 2000, // ₦2,000
-  payoutFee: 50, // ₦50 fixed transfer fee
+  platformFeePercentage: 5.0,
+  minimumContribution: 200,
+  maximumContribution: 5000000,
+  minimumPayout: 2000,
+  payoutFee: 50,
   supportedCurrencies: ['NGN'],
   maintenanceMode: false,
   updatedAt: new Date().toISOString(),
 };
 
+function mapDbPlatformSettings(row: Record<string, any>): PlatformSettings {
+  return {
+    platformFeePercentage: Number(row.platform_fee_percentage ?? 5.0),
+    minimumContribution: Number(row.minimum_contribution ?? 200),
+    maximumContribution: Number(row.maximum_contribution ?? 5000000),
+    minimumPayout: Number(row.minimum_payout ?? 2000),
+    payoutFee: Number(row.payout_fee ?? 50),
+    supportedCurrencies: Array.isArray(row.supported_currencies) ? row.supported_currencies : ['NGN'],
+    maintenanceMode: Boolean(row.maintenance_mode),
+    updatedAt: row.updated_at || new Date().toISOString(),
+  };
+}
+
+export function mapDbContribution(row: Record<string, any>): Contribution {
+  return {
+    id: row.id,
+    creatorId: row.creator_id,
+    creatorUsername: row.creator_username || undefined,
+    campaignId: row.campaign_id || undefined,
+    campaignTitle: row.campaign_title || undefined,
+    supporterName: row.supporter_name || 'Anonymous Supporter',
+    supporterEmail: row.supporter_email || '',
+    amount: Number(row.amount || 0),
+    currency: row.currency || 'NGN',
+    message: row.message || '',
+    anonymous: Boolean(row.anonymous),
+    publicMessage: row.public_message !== false,
+    paymentStatus: (row.payment_status || 'pending') as PaymentStatus,
+    paymentTransactionId: row.payment_transaction_id || undefined,
+    platformFee: Number(row.platform_fee || 0),
+    netAmount: Number(row.net_amount || 0),
+    createdAt: row.created_at || new Date().toISOString(),
+  };
+}
+
 export async function getPlatformSettings(): Promise<PlatformSettings> {
+  if (!isSupabaseConfigured()) return DEFAULT_PLATFORM_SETTINGS;
+
   try {
-    const snap = await getDoc(doc(db, 'platformSettings', 'global'));
-    if (snap.exists()) {
-      return snap.data() as PlatformSettings;
+    const { data, error } = await supabase
+      .from('platform_settings')
+      .select('*')
+      .eq('id', 'global')
+      .maybeSingle();
+
+    if (error || !data) {
+      return DEFAULT_PLATFORM_SETTINGS;
     }
-    await setDoc(doc(db, 'platformSettings', 'global'), DEFAULT_PLATFORM_SETTINGS);
-    return DEFAULT_PLATFORM_SETTINGS;
+
+    return mapDbPlatformSettings(data);
   } catch (err) {
     console.warn('Using default platform settings:', err);
     return DEFAULT_PLATFORM_SETTINGS;
@@ -47,7 +75,7 @@ export async function getPlatformSettings(): Promise<PlatformSettings> {
 }
 
 /**
- * Initializes a contribution record in pending status
+ * Initializes a pending contribution & payment transaction record in Supabase PostgreSQL.
  */
 export async function initializeContribution(data: {
   creatorId: string;
@@ -62,8 +90,12 @@ export async function initializeContribution(data: {
   anonymous: boolean;
   publicMessage: boolean;
 }): Promise<{ contribution: Contribution; transactionRecord: PaymentTransaction }> {
+  if (!isSupabaseConfigured()) {
+    throw new Error('Supabase is not configured.');
+  }
+
   const settings = await getPlatformSettings();
-  
+
   if (data.amount < settings.minimumContribution) {
     throw new Error(`Minimum contribution is ₦${settings.minimumContribution.toLocaleString()}`);
   }
@@ -73,18 +105,21 @@ export async function initializeContribution(data: {
 
   const contributionId = `cnt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const providerReference = `BMD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
   const now = new Date().toISOString();
 
-  const fee = Math.round((data.amount * (settings.platformFeePercentage / 100)) * 100) / 100;
+  const fee = Math.round(data.amount * (settings.platformFeePercentage / 100) * 100) / 100;
   const net = data.amount - fee;
 
   const contribution: Contribution = {
     id: contributionId,
     creatorId: data.creatorId,
     creatorUsername: data.creatorUsername,
-    campaignId: data.campaignId,
+    campaignId: data.campaignId || undefined,
     campaignTitle: data.campaignTitle,
-    supporterName: data.anonymous ? 'Generous Believer' : (data.supporterName || 'Anonymous Supporter'),
+    supporterName: data.anonymous
+      ? 'Generous Believer'
+      : data.supporterName || 'Anonymous Supporter',
     supporterEmail: data.supporterEmail,
     amount: data.amount,
     currency: data.currency || 'NGN',
@@ -102,7 +137,7 @@ export async function initializeContribution(data: {
     id: transactionId,
     contributionId,
     provider: 'bachs',
-    providerReference: `BMD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+    providerReference,
     amount: data.amount,
     currency: data.currency || 'NGN',
     status: 'pending',
@@ -111,13 +146,47 @@ export async function initializeContribution(data: {
     updatedAt: now,
   };
 
-  try {
-    const batch = writeBatch(db);
-    batch.set(doc(db, 'contributions', contributionId), contribution);
-    batch.set(doc(db, 'paymentTransactions', transactionId), transactionRecord);
-    await batch.commit();
-  } catch (err) {
-    handleFirestoreError(err, OperationType.CREATE, `contributions/${contributionId}`);
+  // Insert without .select() so anonymous supporters can initialize checkout under RLS
+  const { error: contribErr } = await supabase.from('contributions').insert({
+    id: contributionId,
+    creator_id: data.creatorId,
+    creator_username: data.creatorUsername || null,
+    campaign_id: data.campaignId || null,
+    campaign_title: data.campaignTitle || null,
+    supporter_name: contribution.supporterName,
+    supporter_email: contribution.supporterEmail,
+    amount: contribution.amount,
+    currency: contribution.currency,
+    message: contribution.message || '',
+    anonymous: contribution.anonymous,
+    public_message: contribution.publicMessage,
+    payment_status: 'pending',
+    payment_transaction_id: transactionId,
+    platform_fee: fee,
+    net_amount: net,
+    created_at: now,
+    updated_at: now,
+  });
+
+  if (contribErr) {
+    throw new Error(contribErr.message || 'Failed to record contribution.');
+  }
+
+  const { error: txnErr } = await supabase.from('payment_transactions').insert({
+    id: transactionId,
+    contribution_id: contributionId,
+    provider: 'bachs',
+    provider_reference: providerReference,
+    amount: data.amount,
+    currency: contribution.currency,
+    status: 'pending',
+    idempotency_key: transactionRecord.idempotencyKey,
+    created_at: now,
+    updated_at: now,
+  });
+
+  if (txnErr) {
+    throw new Error(txnErr.message || 'Failed to create payment transaction.');
   }
 
   return { contribution, transactionRecord };
@@ -140,43 +209,32 @@ export async function initializeBachsPayment(params: {
   reference: string;
   mode: 'test' | 'live';
 }> {
-  try {
-    const res = await fetch('/api/payments/initialize', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(params),
-    });
+  const res = await fetch('/api/payments/initialize', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
 
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.error || 'Failed to initialize payment gateway.');
-    }
-
-    return {
-      success: true,
-      checkoutUrl: data.data?.checkout_url || data.data?.authorization_url,
-      authorizationUrl: data.data?.authorization_url || data.data?.checkout_url,
-      accessCode: data.data?.access_code || data.data?.id,
-      reference: data.data?.reference || params.reference,
-      mode: data.mode || 'test',
-    };
-  } catch (err) {
-    console.error('Error calling /api/payments/initialize:', err);
-    throw err;
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to initialize payment gateway.');
   }
+
+  return {
+    success: true,
+    checkoutUrl: data.data?.checkout_url || data.data?.authorization_url,
+    authorizationUrl: data.data?.authorization_url || data.data?.checkout_url,
+    accessCode: data.data?.access_code || data.data?.id,
+    reference: data.data?.reference || params.reference,
+    mode: data.mode || 'test',
+  };
 }
 
-/**
- * Backward-compatible alias for initializeBachsPayment
- */
 export const initializePaystackPayment = initializeBachsPayment;
 
 /**
- * Strictly verifies a transaction on the server.
- * The server queries Paystack directly, validates amounts and currency,
- * commits atomic double-entry ledger entries, and updates balances.
+ * Strictly verifies a transaction on the Express backend and commits atomic
+ * Supabase double-entry ledger entries.
  */
 export async function verifyPaymentOnServer(reference: string): Promise<{
   success: boolean;
@@ -188,158 +246,48 @@ export async function verifyPaymentOnServer(reference: string): Promise<{
   platformFee: number;
   creatorId: string;
 }> {
-  try {
-    const res = await fetch('/api/payments/verify', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ reference }),
-    });
+  const res = await fetch('/api/payments/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reference }),
+  });
 
-    const data = await res.json();
-    if (!res.ok || !data.success) {
-      throw new Error(data.error || 'Server verification rejected the payment transaction.');
-    }
-
-    return data;
-  } catch (err) {
-    console.error('Error verifying payment on server:', err);
-    throw err;
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Server verification rejected the payment transaction.');
   }
+
+  return data;
 }
 
 /**
- * Verifies and finalizes a payment using an atomic writeBatch.
- * Applies double-entry ledger entries and updates campaign metrics atomically.
+ * Backward-compatible finalization helper delegating settlement to the server verification API.
  */
 export async function finalizePayment(
   contributionId: string,
   transactionId: string,
-  provider: PaymentProvider = 'sandbox',
+  _provider: PaymentProvider = 'bachs',
   providerReference?: string
 ): Promise<{ success: boolean; contribution: Contribution }> {
-  const contribRef = doc(db, 'contributions', contributionId);
-  const txnRef = doc(db, 'paymentTransactions', transactionId);
+  const ref = providerReference || transactionId;
+  await verifyPaymentOnServer(ref);
 
-  const contribSnap = await getDoc(contribRef);
-  if (!contribSnap.exists()) {
-    throw new Error('Contribution not found');
+  const { data } = await supabase
+    .from('contributions')
+    .select('*')
+    .eq('id', contributionId)
+    .maybeSingle();
+
+  if (!data) {
+    throw new Error('Contribution not found after verification.');
   }
-  const contribution = contribSnap.data() as Contribution;
 
-  // Idempotency check: if already successful, do not double-credit
-  if (contribution.paymentStatus === 'successful') {
-    return { success: true, contribution };
-  }
-
-  const verifiedAt = new Date().toISOString();
-  const ledgerTxnId = `ltxn_${Date.now()}`;
-
-  // Execute database updates atomically via writeBatch
-  try {
-    const batch = writeBatch(db);
-
-    // 1. Update contribution status
-    batch.update(contribRef, {
-      paymentStatus: 'successful',
-    });
-
-    // 2. Update transaction status
-    batch.update(txnRef, {
-      status: 'successful',
-      provider,
-      providerReference: providerReference || `BMD-REF-${Date.now()}`,
-      verifiedAt,
-      updatedAt: verifiedAt,
-    });
-
-    // 3. If tied to a campaign, update aggregates atomically
-    if (contribution.campaignId) {
-      const campRef = doc(db, 'campaigns', contribution.campaignId);
-      batch.update(campRef, {
-        amountRaised: increment(contribution.amount),
-        contributorCount: increment(1),
-        updatedAt: verifiedAt,
-      });
-    }
-
-    // 4. Double-entry Immutable Ledger entries
-    // DEBIT: ESCROW_CASH (gross amount) -> Inflow into system
-    const entryEscrow: LedgerEntry = {
-      id: `led_${Date.now()}_1`,
-      ledgerTransactionId: ledgerTxnId,
-      accountOwner: 'PLATFORM',
-      accountType: 'ESCROW_CASH',
-      entryType: 'DEBIT',
-      amount: contribution.amount,
-      currency: contribution.currency,
-      description: `Inflow from contribution ${contribution.id}`,
-      referenceId: contribution.id,
-      createdAt: verifiedAt,
-    };
-
-    // CREDIT: PLATFORM_FEES (fee portion)
-    const entryFee: LedgerEntry = {
-      id: `led_${Date.now()}_2`,
-      ledgerTransactionId: ledgerTxnId,
-      accountOwner: 'PLATFORM',
-      accountType: 'PLATFORM_FEES',
-      entryType: 'CREDIT',
-      amount: contribution.platformFee,
-      currency: contribution.currency,
-      description: `Platform fee on contribution ${contribution.id}`,
-      referenceId: contribution.id,
-      createdAt: verifiedAt,
-    };
-
-    // CREDIT: CREATOR_AVAILABLE (net earnings)
-    const entryCreator: LedgerEntry = {
-      id: `led_${Date.now()}_3`,
-      ledgerTransactionId: ledgerTxnId,
-      accountOwner: contribution.creatorId,
-      accountType: 'CREATOR_AVAILABLE',
-      entryType: 'CREDIT',
-      amount: contribution.netAmount,
-      currency: contribution.currency,
-      description: `Net earnings from supporter ${contribution.supporterName}`,
-      referenceId: contribution.id,
-      createdAt: verifiedAt,
-    };
-
-    batch.set(doc(db, 'ledgerEntries', entryEscrow.id), entryEscrow);
-    batch.set(doc(db, 'ledgerEntries', entryFee.id), entryFee);
-    batch.set(doc(db, 'ledgerEntries', entryCreator.id), entryCreator);
-
-    // Commit all updates atomically
-    await batch.commit();
-
-    // 5. Send in-app notification to creator
-    await createNotification({
-      userId: contribution.creatorId,
-      title: `🎉 ₦${contribution.amount.toLocaleString()} Support Received!`,
-      message: `${contribution.supporterName} sent you ₦${contribution.amount.toLocaleString()}${
-        contribution.message ? `: "${contribution.message.slice(0, 80)}..."` : '.'
-      }`,
-      type: 'contribution_received',
-      relatedResourceId: contribution.id,
-    });
-
-    return {
-      success: true,
-      contribution: {
-        ...contribution,
-        paymentStatus: 'successful',
-      },
-    };
-  } catch (err) {
-    handleFirestoreError(err, OperationType.WRITE, `contributions/${contributionId}`);
-  }
+  return {
+    success: true,
+    contribution: mapDbContribution(data),
+  };
 }
 
-/**
- * Calculates financial balances for a creator from immutable ledger entries
- */
 export async function getCreatorFinancialSummary(creatorId: string): Promise<{
   grossContributions: number;
   platformFees: number;
@@ -348,46 +296,54 @@ export async function getCreatorFinancialSummary(creatorId: string): Promise<{
   pendingBalance: number;
   totalWithdrawn: number;
 }> {
+  if (!creatorId || !isSupabaseConfigured()) {
+    return {
+      grossContributions: 0,
+      platformFees: 0,
+      netEarnings: 0,
+      availableBalance: 0,
+      pendingBalance: 0,
+      totalWithdrawn: 0,
+    };
+  }
+
   try {
-    // 1. Fetch contributions
-    const contribQuery = query(
-      collection(db, 'contributions'),
-      where('creatorId', '==', creatorId)
-    );
-    const contribSnap = await getDocs(contribQuery);
-    
+    const [contribRes, payoutsRes] = await Promise.all([
+      supabase
+        .from('contributions')
+        .select('amount, platform_fee, net_amount, payment_status')
+        .eq('creator_id', creatorId),
+      supabase
+        .from('payouts')
+        .select('amount, status')
+        .eq('creator_id', creatorId),
+    ]);
+
     let grossContributions = 0;
     let platformFees = 0;
     let netEarnings = 0;
     let pendingBalance = 0;
 
-    contribSnap.docs.forEach((d) => {
-      const c = d.data() as Contribution;
-      if (c.paymentStatus === 'successful') {
-        grossContributions += c.amount || 0;
-        platformFees += c.platformFee || 0;
-        netEarnings += c.netAmount || 0;
-      } else if (c.paymentStatus === 'pending') {
-        pendingBalance += c.amount || 0;
+    (contribRes.data || []).forEach((c: any) => {
+      const amount = Number(c.amount || 0);
+      if (c.payment_status === 'successful') {
+        grossContributions += amount;
+        platformFees += Number(c.platform_fee || 0);
+        netEarnings += Number(c.net_amount || 0);
+      } else if (c.payment_status === 'pending') {
+        pendingBalance += amount;
       }
     });
 
-    // 2. Fetch payouts to calculate withdrawals
-    const payoutsQuery = query(
-      collection(db, 'payouts'),
-      where('creatorId', '==', creatorId)
-    );
-    const payoutSnap = await getDocs(payoutsQuery);
-    
     let totalWithdrawn = 0;
     let inFlightPayouts = 0;
 
-    payoutSnap.docs.forEach((d) => {
-      const p = d.data();
+    (payoutsRes.data || []).forEach((p: any) => {
+      const amount = Number(p.amount || 0);
       if (p.status === 'successful') {
-        totalWithdrawn += p.amount || 0;
+        totalWithdrawn += amount;
       } else if (p.status === 'pending' || p.status === 'processing') {
-        inFlightPayouts += p.amount || 0;
+        inFlightPayouts += amount;
       }
     });
 
@@ -415,14 +371,21 @@ export async function getCreatorFinancialSummary(creatorId: string): Promise<{
 }
 
 export async function getCreatorContributions(creatorId: string): Promise<Contribution[]> {
+  if (!creatorId || !isSupabaseConfigured()) return [];
+
   try {
-    const q = query(
-      collection(db, 'contributions'),
-      where('creatorId', '==', creatorId)
-    );
-    const snap = await getDocs(q);
-    const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Contribution));
-    return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const { data, error } = await supabase
+      .from('contributions')
+      .select('*')
+      .eq('creator_id', creatorId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching creator contributions:', error.message);
+      return [];
+    }
+
+    return (data || []).map(mapDbContribution);
   } catch (err) {
     console.error('Error fetching creator contributions:', err);
     return [];
@@ -430,17 +393,25 @@ export async function getCreatorContributions(creatorId: string): Promise<Contri
 }
 
 export async function getPublicSupporterMessages(creatorId: string): Promise<Contribution[]> {
+  if (!creatorId || !isSupabaseConfigured()) return [];
+
   try {
-    const q = query(
-      collection(db, 'contributions'),
-      where('creatorId', '==', creatorId),
-      where('paymentStatus', '==', 'successful')
-    );
-    const snap = await getDocs(q);
-    const list = snap.docs
-      .map((d) => ({ id: d.id, ...d.data() } as Contribution))
-      .filter((c) => c.publicMessage && c.message && c.message.trim().length > 0);
-    return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const { data, error } = await supabase
+      .from('contributions')
+      .select('*')
+      .eq('creator_id', creatorId)
+      .eq('payment_status', 'successful')
+      .eq('public_message', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching public supporter messages:', error.message);
+      return [];
+    }
+
+    return (data || [])
+      .map(mapDbContribution)
+      .filter((c) => Boolean(c.message && c.message.trim().length > 0));
   } catch (err) {
     console.error('Error fetching public supporter messages:', err);
     return [];

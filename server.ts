@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import { bachsClient } from './src/server/bachs';
 import { verifyAndFinalizePayment } from './src/server/ledger';
 import { processServerPayout, calculateServerCreatorBalance } from './src/server/payouts';
-import { getPostgresCreatorByUsername, getPostgresCampaignsByCreator, upsertPostgresCreatorProfile } from './src/db/repository.ts';
+import { checkServerSupabaseStatus, supabaseAdmin } from './src/server/supabaseAdmin';
 
 dotenv.config();
 
@@ -35,17 +35,24 @@ app.use(express.urlencoded({ extended: true }));
 // -------------------------------------------------------------
 // 1. HEALTH & PROVIDER CONFIGURATION
 // -------------------------------------------------------------
-app.get('/api/health', (_req: Request, res: Response) => {
+app.get('/api/health', async (_req: Request, res: Response) => {
+  const supabaseStatus = await checkServerSupabaseStatus();
   res.json({
     status: 'ok',
     app: 'BuyMeData',
     currency: 'NGN',
-    database: 'postgresql',
+    database: supabaseStatus.connected ? 'supabase-postgresql' : 'postgresql',
+    supabase: supabaseStatus,
     paymentProvider: 'bachs',
     configured: bachsClient.hasValidKey(),
     mode: bachsClient.getMode(),
     timestamp: new Date().toISOString(),
   });
+});
+
+app.get('/api/supabase/health', async (_req: Request, res: Response) => {
+  const supabaseStatus = await checkServerSupabaseStatus();
+  return res.status(supabaseStatus.connected ? 200 : 503).json(supabaseStatus);
 });
 
 // -------------------------------------------------------------
@@ -250,16 +257,33 @@ app.post('/api/payouts/initiate', async (req: Request, res: Response) => {
 });
 
 // -------------------------------------------------------------
-// 7. POSTGRESQL RELATIONAL APIS (CLOUD SQL & DRIZZLE ORM)
+// 7. SUPABASE POSTGRESQL CREATOR API
 // -------------------------------------------------------------
 app.get('/api/db/creators/:username', async (req: Request, res: Response) => {
   try {
-    const creator = await getPostgresCreatorByUsername(req.params.username);
-    if (!creator) return res.status(404).json({ error: 'Creator not found in PostgreSQL database.' });
-    const camps = await getPostgresCampaignsByCreator(creator.userId);
-    return res.json({ success: true, creator, campaigns: camps });
+    const cleanUsername = req.params.username.toLowerCase().trim().replace(/^@/, '');
+    const { data: creator, error: creatorErr } = await supabaseAdmin
+      .from('creator_profiles')
+      .select('*')
+      .eq('username', cleanUsername)
+      .maybeSingle();
+
+    if (creatorErr) {
+      throw new Error(creatorErr.message);
+    }
+    if (!creator) {
+      return res.status(404).json({ error: 'Creator not found in Supabase PostgreSQL database.' });
+    }
+
+    const { data: camps } = await supabaseAdmin
+      .from('campaigns')
+      .select('*')
+      .eq('creator_id', creator.user_id)
+      .order('created_at', { ascending: false });
+
+    return res.json({ success: true, creator, campaigns: camps || [] });
   } catch (err) {
-    console.error('Postgres creator lookup error:', err);
+    console.error('Supabase creator lookup error:', err);
     return res.status(500).json({ error: 'Failed to query creator profile from database.' });
   }
 });
@@ -270,21 +294,34 @@ app.post('/api/db/creators/sync', async (req: Request, res: Response) => {
     if (!userId || !displayName || !username) {
       return res.status(400).json({ error: 'Missing required creator sync fields: userId, displayName, username' });
     }
-    const profile = await upsertPostgresCreatorProfile({
-      userId,
-      displayName,
-      username,
-      biography,
-      category,
-      profileImage,
-      coverImage,
-      website,
-      theme,
-    });
+    const now = new Date().toISOString();
+    const { data: profile, error } = await supabaseAdmin
+      .from('creator_profiles')
+      .upsert(
+        {
+          user_id: userId,
+          display_name: displayName,
+          username: String(username).toLowerCase().trim().replace(/^@/, ''),
+          biography: biography ?? '',
+          category: category || 'Creative & Tech',
+          profile_image: profileImage || null,
+          cover_image: coverImage || null,
+          website: website ?? '',
+          theme: theme || 'crimson',
+          updated_at: now,
+        },
+        { onConflict: 'user_id' }
+      )
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
     return res.json({ success: true, profile });
   } catch (err) {
-    console.error('Postgres creator sync error:', err);
-    return res.status(500).json({ error: 'Failed to sync creator to PostgreSQL.' });
+    console.error('Supabase creator sync error:', err);
+    return res.status(500).json({ error: 'Failed to sync creator to Supabase PostgreSQL.' });
   }
 });
 

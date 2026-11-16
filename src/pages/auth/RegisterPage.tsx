@@ -29,7 +29,14 @@ import {
 export function RegisterPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { refreshProfiles } = useAuth();
+  const { refreshProfiles, authUser } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (authUser) {
+      navigate('/dashboard');
+    }
+  }, [authUser, navigate]);
 
   // Parse query parameter or stored username
   const searchParams = new URLSearchParams(window.location.search);
@@ -50,6 +57,7 @@ export function RegisterPage() {
 
   // States
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -92,24 +100,25 @@ export function RegisterPage() {
     setCurrentStep(2);
   };
 
-  // Google / Gmail one-click sign up
+  // Google / Gmail one-click sign up via Supabase OAuth
   const handleGoogleSignup = async () => {
     setErrorMsg('');
     setLoading(true);
     try {
       await loginWithGoogle(claimedUsername);
-      await refreshProfiles();
-      window.localStorage.removeItem('buymedata_claimed_username');
-      navigate('/dashboard');
+      // Browser redirects to Google OAuth; keep spinner active
     } catch (err: unknown) {
       console.error('Google signup error:', err);
-      setErrorMsg('Google sign-in was cancelled or encountered an issue. Please try again.');
-    } finally {
+      setErrorMsg(
+        err instanceof Error
+          ? err.message
+          : 'Google sign-in could not be started. Please check your configuration.'
+      );
       setLoading(false);
     }
   };
 
-  // Passwordless One-Time Email Magic Link sign up
+  // Passwordless One-Time Email Magic Link sign up via Supabase OTP
   const handleSendMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
@@ -119,7 +128,7 @@ export function RegisterPage() {
     setErrorMsg('');
     setLoading(true);
     try {
-      await sendOneTimeEmailLink(email);
+      await sendOneTimeEmailLink(email, claimedUsername);
       setMagicLinkSent(true);
     } catch (err: unknown) {
       console.error('Error sending magic link:', err);
@@ -143,21 +152,26 @@ export function RegisterPage() {
     setErrorMsg('');
     setLoading(true);
     try {
-      await registerWithEmail(
+      const { sessionActive } = await registerWithEmail(
         fullName || claimedUsername,
         email,
         password,
         claimedUsername,
         'creator'
       );
-      await refreshProfiles();
-      window.localStorage.removeItem('buymedata_claimed_username');
-      navigate('/dashboard');
+      if (sessionActive) {
+        await refreshProfiles();
+        window.localStorage.removeItem('buymedata_claimed_username');
+        navigate('/dashboard');
+      } else {
+        setConfirmationSent(true);
+        setMagicLinkSent(true);
+      }
     } catch (err: unknown) {
       console.error('Registration error:', err);
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('email-already-in-use')) {
-        setErrorMsg('An account with this email already exists. Please log in.');
+      if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
+        setErrorMsg('An account with this email already exists. Please sign in.');
       } else {
         setErrorMsg(msg || 'Failed to create account. Please check your details.');
       }
@@ -294,14 +308,28 @@ export function RegisterPage() {
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
                   <Mail className="w-6 h-6" />
                 </div>
-                <h3 className="font-extrabold text-base text-gray-900">Check Your Inbox!</h3>
+                <h3 className="font-extrabold text-base text-gray-900">
+                  {confirmationSent ? 'Confirm Your Email' : 'Check Your Inbox!'}
+                </h3>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  We sent a one-time sign-in link to <strong className="text-gray-900">{email}</strong>.
-                  Click the link in your email to instantly see your dashboard.
+                  {confirmationSent ? (
+                    <>
+                      We sent a verification link to <strong className="text-gray-900">{email}</strong>.
+                      Click the link in your email to verify your account and open your dashboard.
+                    </>
+                  ) : (
+                    <>
+                      We sent a one-time sign-in link to <strong className="text-gray-900">{email}</strong>.
+                      Click the link in your email to instantly see your dashboard.
+                    </>
+                  )}
                 </p>
                 <button
                   type="button"
-                  onClick={() => setMagicLinkSent(false)}
+                  onClick={() => {
+                    setMagicLinkSent(false);
+                    setConfirmationSent(false);
+                  }}
                   className="text-xs font-bold text-[#F22550] hover:underline pt-2 block mx-auto"
                 >
                   Use a different email or sign in with Google

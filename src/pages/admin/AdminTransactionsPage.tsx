@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, query, limit } from 'firebase/firestore';
-import { db } from '../../firebase/config';
-import { PaymentTransaction, Contribution } from '../../types';
+import { supabase } from '../../lib/supabaseClient';
+import { PaymentTransaction, PaymentProvider } from '../../types';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import { CreditCard, Search, ArrowDownLeft, Loader2 } from 'lucide-react';
 
@@ -14,9 +13,31 @@ export function AdminTransactionsPage() {
     const loadTxns = async () => {
       setLoading(true);
       try {
-        const snap = await getDocs(query(collection(db, 'paymentTransactions'), limit(100)));
-        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as PaymentTransaction));
-        setTransactions(list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+        const { data, error } = await supabase
+          .from('payment_transactions')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100);
+
+        if (error) {
+          console.error('Error fetching transactions:', error.message);
+        }
+
+        const list: PaymentTransaction[] = (data || []).map((row: any) => ({
+          id: row.id,
+          contributionId: row.contribution_id,
+          provider: (row.provider || 'bachs') as PaymentProvider,
+          providerReference: row.provider_reference,
+          amount: Number(row.amount || 0),
+          currency: row.currency || 'NGN',
+          status: row.status,
+          idempotencyKey: row.idempotency_key,
+          channel: row.channel || undefined,
+          verifiedAt: row.verified_at || undefined,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        }));
+        setTransactions(list);
       } catch (err) {
         console.error('Error fetching transactions:', err);
       } finally {
