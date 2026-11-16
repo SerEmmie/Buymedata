@@ -37,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 // -------------------------------------------------------------
 app.get('/api/health', async (_req: Request, res: Response) => {
   const supabaseStatus = await checkServerSupabaseStatus();
+  const rawWebhookSecret = (process.env.BACHS_WEBHOOK_SECRET || '').trim().replace(/^["']|["']$/g, '');
   res.json({
     status: 'ok',
     app: 'BuyMeData',
@@ -45,6 +46,9 @@ app.get('/api/health', async (_req: Request, res: Response) => {
     supabase: supabaseStatus,
     paymentProvider: 'bachs',
     configured: bachsClient.hasValidKey(),
+    webhookConfigured: Boolean(rawWebhookSecret),
+    webhookIsWhsec: rawWebhookSecret.startsWith('whsec_'),
+    webhookSecretLength: rawWebhookSecret.length,
     mode: bachsClient.getMode(),
     timestamp: new Date().toISOString(),
   });
@@ -79,6 +83,17 @@ app.post('/api/payments/initialize', async (req: Request, res: Response) => {
       callback_url: callbackUrl,
       metadata,
     });
+
+    // Link the Bachs checkout session ID (chk_...) to the pending payment_transactions record
+    if (bachsRes.data?.id) {
+      await supabaseAdmin
+        .from('payment_transactions')
+        .update({
+          gateway_response: bachsRes.data.id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('provider_reference', reference);
+    }
 
     return res.json({
       success: true,

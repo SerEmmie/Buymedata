@@ -503,12 +503,25 @@ export function ContributionCheckoutModal({
 
               {/* Action Buttons */}
               <div className="space-y-2">
+                {gatewayAuthUrl && gatewayAuthUrl.startsWith('http') && (
+                  <a
+                    href={gatewayAuthUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3.5 px-4 bg-[#17191F] hover:bg-black text-white font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+                  >
+                    <Lock className="w-4 h-4 text-emerald-400" />
+                    <span>Open Bachs Secure Checkout Page</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
+                )}
+
                 <button
                   type="button"
                   onClick={handleAuthorizePayment}
                   className="w-full py-3.5 px-4 bg-[#F22550] hover:bg-[#D81A43] text-white font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
                 >
-                  <span>Authorize & Verify on Server</span>
+                  <span>Verify Payment on Server</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 

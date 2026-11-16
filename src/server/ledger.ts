@@ -26,23 +26,22 @@ export async function verifyAndFinalizePayment(reference: string): Promise<Final
     throw new Error('Missing or invalid payment reference');
   }
 
-  // 1. Query Bachs official verification endpoint
-  const verifyRes = await bachsClient.verifyTransaction(reference);
-
-  if (!verifyRes.status || verifyRes.data.status !== 'success') {
-    throw new Error(
-      `Payment verification failed: Bachs reported status "${verifyRes.data?.status || 'unsuccessful'}"`
-    );
-  }
-
-  const bachsData = verifyRes.data;
-
-  // 2. Locate the matching PaymentTransaction in Supabase
+  // 1. Locate the matching PaymentTransaction in Supabase first (by provider_reference, chk_ session ID, or id)
   let { data: txnData, error: txnErr } = await supabaseAdmin
     .from('payment_transactions')
     .select('*')
     .eq('provider_reference', reference)
     .maybeSingle();
+
+  if (!txnData && !txnErr) {
+    const bySession = await supabaseAdmin
+      .from('payment_transactions')
+      .select('*')
+      .eq('gateway_response', reference)
+      .maybeSingle();
+    txnData = bySession.data;
+    txnErr = bySession.error;
+  }
 
   if (!txnData && !txnErr) {
     const byId = await supabaseAdmin
@@ -60,6 +59,22 @@ export async function verifyAndFinalizePayment(reference: string): Promise<Final
   if (!txnData) {
     throw new Error(`Transaction with reference "${reference}" not found in database records.`);
   }
+
+  // 2. Query Bachs verification endpoint using the Bachs chk_ session ID if linked, otherwise reference
+  const bachsSessionLookup =
+    typeof txnData.gateway_response === 'string' && txnData.gateway_response.startsWith('chk_')
+      ? txnData.gateway_response
+      : reference;
+
+  const verifyRes = await bachsClient.verifyTransaction(bachsSessionLookup);
+
+  if (!verifyRes.status || verifyRes.data.status !== 'success') {
+    throw new Error(
+      `Payment verification failed: Bachs reported status "${verifyRes.data?.status || 'unsuccessful'}"`
+    );
+  }
+
+  const bachsData = verifyRes.data;
 
   // 3. Fetch the linked Contribution record
   const { data: contribution, error: contribErr } = await supabaseAdmin

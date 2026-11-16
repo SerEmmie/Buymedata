@@ -104,8 +104,12 @@ export class BachsClient {
   private isTestMode: boolean;
 
   constructor() {
-    this.apiKey = process.env.BACHS_API_KEY || process.env.BACHS_SECRET_KEY || '';
-    this.webhookSecret = process.env.BACHS_WEBHOOK_SECRET || this.apiKey;
+    this.apiKey = (process.env.BACHS_API_KEY || process.env.BACHS_SECRET_KEY || '')
+      .trim()
+      .replace(/^["']|["']$/g, '');
+    this.webhookSecret = (process.env.BACHS_WEBHOOK_SECRET || '')
+      .trim()
+      .replace(/^["']|["']$/g, '') || this.apiKey;
     this.isConfigured = Boolean(this.apiKey && this.apiKey.startsWith('sk_'));
     this.isTestMode = !this.isConfigured || this.apiKey.startsWith('sk_sandbox_') || process.env.PAYMENT_MODE === 'test';
     this.baseUrl = this.isTestMode ? 'https://sandbox-api.bachs.io' : 'https://api.bachs.io';
@@ -136,7 +140,7 @@ export class BachsClient {
       try {
         const payload = {
           pricing: {
-            amount: params.amount,
+            amount: Number(params.amount).toFixed(2),
             currency: 'NGN',
           },
           customer: {
@@ -163,7 +167,11 @@ export class BachsClient {
 
         const json = await response.json();
         if (!response.ok) {
-          throw new Error(json.message || `Bachs checkout session creation failed with HTTP ${response.status}`);
+          const errDetail =
+            (typeof json.detail === 'string' ? json.detail : json.detail ? JSON.stringify(json.detail) : '') ||
+            json.message ||
+            `HTTP ${response.status}`;
+          throw new Error(`Bachs checkout session creation failed (${response.status}): ${errDetail}`);
         }
 
         const session = json.data || json;
@@ -221,39 +229,44 @@ export class BachsClient {
           },
         });
 
-        if (response.ok) {
-          const json = await response.json();
-          const session = json.data || json;
-          const isSuccessful = ['completed', 'paid', 'succeeded', 'success'].includes(
-            String(session.status || session.payment_status).toLowerCase()
-          );
-
-          return {
-            status: true,
-            message: 'Transaction verified with Bachs',
-            data: {
-              id: session.id || reference,
-              reference,
-              status: isSuccessful ? 'success' : 'failed',
-              amount: Number(session.pricing?.amount || session.amount || 0),
-              currency: session.pricing?.currency || session.currency || 'NGN',
-              paid_at: session.paid_at || new Date().toISOString(),
-              channel: session.payment_method || 'card',
-              gateway_response: 'Approved by Bachs',
-              customer: {
-                email: session.customer?.email || 'supporter@example.com',
-                name: session.customer?.name,
-              },
-              metadata: session.metadata,
-            },
-          };
+        if (!response.ok) {
+          const errText = await response.text().catch(() => '');
+          throw new Error(`Bachs verification lookup failed (HTTP ${response.status})${errText ? `: ${errText}` : ''}`);
         }
+
+        const json = await response.json();
+        const session = json.data || json;
+        const rawStatus = String(session.payment_status || session.status || '').toLowerCase();
+        const isSuccessful = ['completed', 'complete', 'paid', 'succeeded', 'success'].includes(rawStatus);
+
+        return {
+          status: true,
+          message: isSuccessful
+            ? 'Transaction verified with Bachs'
+            : `Checkout session status is "${rawStatus || 'open'}"`,
+          data: {
+            id: session.id || reference,
+            reference,
+            status: isSuccessful ? 'success' : rawStatus === 'open' || rawStatus === 'pending' ? 'pending' : 'failed',
+            amount: Number(session.pricing?.amount || session.amount || 0),
+            currency: session.pricing?.currency || session.currency || 'NGN',
+            paid_at: session.paid_at || new Date().toISOString(),
+            channel: session.payment_method || 'card',
+            gateway_response: isSuccessful ? 'Approved by Bachs' : `Status: ${rawStatus || 'open'}`,
+            customer: {
+              email: session.customer?.email || 'supporter@example.com',
+              name: session.customer?.name,
+            },
+            metadata: session.metadata,
+          },
+        };
       } catch (err) {
-        console.warn('Bachs remote session check warning:', err);
+        console.error('Bachs remote session verification error:', err);
+        throw err;
       }
     }
 
-    // Sandbox Test Mode Verified Response
+    // Simulator fallback only when no BACHS_API_KEY is configured
     return {
       status: true,
       message: 'Transaction verified (Bachs Sandbox Test Mode)',
