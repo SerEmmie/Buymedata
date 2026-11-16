@@ -16,12 +16,26 @@ export function LoginPage() {
   const navigate = useNavigate();
   const { refreshProfiles, authUser } = useAuth();
 
-  // Redirect to dashboard once Supabase Auth session is active (including after OAuth or Magic Link return)
+  const searchParams = new URLSearchParams(window.location.search);
+  const rawNext = searchParams.get('next');
+  const safeNext =
+    rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+      ? rawNext
+      : window.localStorage.getItem('buymedata_post_auth_next') || '/dashboard';
+
+  useEffect(() => {
+    if (rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')) {
+      window.localStorage.setItem('buymedata_post_auth_next', rawNext);
+    }
+  }, [rawNext]);
+
+  // Redirect once Supabase Auth session is active (including after OAuth or Magic Link return)
   useEffect(() => {
     if (authUser) {
-      navigate('/dashboard');
+      window.localStorage.removeItem('buymedata_post_auth_next');
+      navigate(safeNext);
     }
-  }, [authUser, navigate]);
+  }, [authUser, navigate, safeNext]);
 
   // Surface any error parameters returned by Supabase OAuth / Magic Link callback
   useEffect(() => {
@@ -40,12 +54,13 @@ export function LoginPage() {
 
     try {
       if (useMagicLink) {
-        await sendOneTimeEmailLink(email);
+        await sendOneTimeEmailLink(email, undefined, safeNext);
         setMagicLinkSent(true);
       } else {
         await loginWithEmail(email, password);
         await refreshProfiles();
-        navigate('/dashboard');
+        window.localStorage.removeItem('buymedata_post_auth_next');
+        navigate(safeNext);
       }
     } catch (err: unknown) {
       console.error('Login error:', err);
@@ -66,7 +81,7 @@ export function LoginPage() {
     setErrorMsg('');
     setLoading(true);
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(undefined, safeNext);
       // Browser redirects to Google OAuth; keep spinner active
     } catch (err: unknown) {
       console.error('Google login error:', err);
@@ -230,9 +245,12 @@ export function LoginPage() {
         )}
 
         <div className="pt-2 text-center text-xs text-gray-500">
-          New creator?{' '}
-          <Link to="/auth/register" className="font-bold text-[#F22550] hover:underline">
-            Claim your page now →
+          New to BuyMeData?{' '}
+          <Link
+            to={safeNext !== '/dashboard' ? `/auth/register?next=${encodeURIComponent(safeNext)}` : '/auth/register'}
+            className="font-bold text-[#F22550] hover:underline"
+          >
+            Get started
           </Link>
         </div>
       </div>

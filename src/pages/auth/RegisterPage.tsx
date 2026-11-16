@@ -28,18 +28,30 @@ import {
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const { refreshProfiles, authUser } = useAuth();
+
+  // Parse query parameter or stored username / next destination
+  const searchParams = new URLSearchParams(window.location.search);
+  const rawNext = searchParams.get('next');
+  const safeNext =
+    rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+      ? rawNext
+      : window.localStorage.getItem('buymedata_post_auth_next') || '/dashboard';
+
+  useEffect(() => {
+    if (rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')) {
+      window.localStorage.setItem('buymedata_post_auth_next', rawNext);
+    }
+  }, [rawNext]);
 
   // Redirect if already authenticated
   useEffect(() => {
     if (authUser) {
-      navigate('/dashboard');
+      window.localStorage.removeItem('buymedata_post_auth_next');
+      navigate(safeNext);
     }
-  }, [authUser, navigate]);
+  }, [authUser, navigate, safeNext]);
 
-  // Parse query parameter or stored username
-  const searchParams = new URLSearchParams(window.location.search);
   const initialClaim = searchParams.get('claim') || window.localStorage.getItem('buymedata_claimed_username') || '';
 
   // Step 1: Claim Username, Step 2: Authenticate (Gmail or Magic Link)
@@ -105,7 +117,7 @@ export function RegisterPage() {
     setErrorMsg('');
     setLoading(true);
     try {
-      await loginWithGoogle(claimedUsername);
+      await loginWithGoogle(claimedUsername, safeNext);
       // Browser redirects to Google OAuth; keep spinner active
     } catch (err: unknown) {
       console.error('Google signup error:', err);
@@ -128,7 +140,7 @@ export function RegisterPage() {
     setErrorMsg('');
     setLoading(true);
     try {
-      await sendOneTimeEmailLink(email, claimedUsername);
+      await sendOneTimeEmailLink(email, claimedUsername, safeNext);
       setMagicLinkSent(true);
     } catch (err: unknown) {
       console.error('Error sending magic link:', err);
@@ -157,12 +169,14 @@ export function RegisterPage() {
         email,
         password,
         claimedUsername,
-        'creator'
+        'creator',
+        safeNext
       );
       if (sessionActive) {
         await refreshProfiles();
         window.localStorage.removeItem('buymedata_claimed_username');
-        navigate('/dashboard');
+        window.localStorage.removeItem('buymedata_post_auth_next');
+        navigate(safeNext);
       } else {
         setConfirmationSent(true);
         setMagicLinkSent(true);
@@ -289,7 +303,7 @@ export function RegisterPage() {
             {/* Secured Username Badge */}
             <div className="p-3 bg-[#FFE6EA] rounded-2xl border border-[#FFCCD5] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#F22550] animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[#F22550]" />
                 <span className="text-xs font-bold text-[#17191F]">
                   Securing: <span className="text-[#F22550]">buymedata.com/@{claimedUsername}</span>
                 </span>
@@ -474,8 +488,11 @@ export function RegisterPage() {
 
         <div className="pt-2 text-center text-xs text-gray-500">
           Already have an account?{' '}
-          <Link to="/auth/login" className="font-extrabold text-[#F22550] hover:underline">
-            Sign in
+          <Link
+            to={safeNext !== '/dashboard' ? `/auth/login?next=${encodeURIComponent(safeNext)}` : '/auth/login'}
+            className="font-extrabold text-[#F22550] hover:underline"
+          >
+            Log in
           </Link>
         </div>
       </div>

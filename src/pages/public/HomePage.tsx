@@ -1,47 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from '../../router';
-import {
-  Heart,
-  Sparkles,
-  ArrowRight,
-  ShieldCheck,
-  Zap,
-  Globe,
-  Users,
-  CheckCircle2,
-  Share2,
-  ChevronRight,
-  Landmark,
-  TrendingUp,
-  AtSign,
-  Check,
-  AlertCircle,
-  Loader2,
-  Send,
-  Lock,
-} from 'lucide-react';
-import { getPublicCampaigns } from '../../services/campaignService';
+import { useAuth } from '../../context/AuthContext';
 import { checkUsernameAvailability } from '../../services/creatorService';
-import { Campaign } from '../../types';
-import { CampaignCard } from '../../components/creator/CampaignCard';
-import { formatCurrency } from '../../utils/formatters';
+import {
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  Compass,
+  Heart,
+  Landmark,
+  Layers,
+  Link2,
+  Loader2,
+  MessageSquareHeart,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Users,
+  Wallet,
+  Briefcase,
+  GraduationCap,
+} from 'lucide-react';
 
 export function HomePage() {
   const navigate = useNavigate();
-  const [activeCampaigns, setActiveCampaigns] = useState<Campaign[]>([]);
-  const [demoAmount, setDemoAmount] = useState(1000);
-  const [demoCustom, setDemoCustom] = useState('');
+  const { fbUser } = useAuth();
 
-  // Hero Claim Page Widget state
+  // Interactive Hero link claim & live preview state
   const [heroUsername, setHeroUsername] = useState('');
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [sampleAmount, setSampleAmount] = useState(2500);
 
-  useEffect(() => {
-    getPublicCampaigns().then(setActiveCampaigns).catch(console.warn);
-  }, []);
+  const displayHandle =
+    heroUsername.length >= 2 ? heroUsername : 'yourname';
 
-  // Debounced live check for hero claim input
   useEffect(() => {
     const clean = heroUsername.toLowerCase().trim().replace(/[^a-z0-9_]/g, '');
     if (!clean || clean.length < 3) {
@@ -56,7 +50,7 @@ export function HomePage() {
         const isAvail = await checkUsernameAvailability(clean);
         setUsernameAvailable(isAvail);
       } catch {
-        setUsernameAvailable(true);
+        setUsernameAvailable(null);
       } finally {
         setCheckingUsername(false);
       }
@@ -76,374 +70,603 @@ export function HomePage() {
     }
   };
 
+  const handleStartGoal = () => {
+    if (fbUser) {
+      navigate('/dashboard/campaigns/new');
+    } else {
+      navigate('/auth/register?next=%2Fdashboard%2Fcampaigns%2Fnew');
+    }
+  };
+
   return (
-    <div className="space-y-24 pb-20">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 md:pt-20">
+    <div className="bg-[#F5F6F8] text-[#17191F]">
+      {/* SECTION B: HERO */}
+      <section className="bg-white border-b border-gray-200/80 pt-14 pb-20 lg:pt-20 lg:pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Copy */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+            {/* Hero Left Copy */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFE6EA] text-[#F22550] text-xs font-bold tracking-wide">
-                <Sparkles className="w-3.5 h-3.5 text-[#F22550]" />
-                <span>A little support goes a long way</span>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#17191F] tracking-tight leading-[1.12]">
-                Support creators, fund dreams, make an{' '}
-                <span className="text-[#F22550]">impact.</span>
-              </h1>
-
-              <p className="text-lg sm:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                BuyMeData is the easiest way to support creators, fund goals and help people thrive. Start in 3 simple steps with zero friction.
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#F22550]">
+                YOUR SUPPORT CAN MAKE A DIFFERENCE
               </p>
 
-              {/* Step 1: Claim Your Page Hero Widget */}
-              <div className="pt-2 max-w-xl mx-auto lg:mx-0">
-                <form
-                  onSubmit={handleClaimSubmit}
-                  className="bg-white p-2 sm:p-2.5 rounded-2xl sm:rounded-3xl border-2 border-gray-200/80 shadow-lg shadow-gray-200/50 focus-within:border-[#F22550] focus-within:ring-4 focus-within:ring-[#F22550]/10 transition-all flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.35rem] font-extrabold text-[#17191F] tracking-tight leading-[1.1] text-balance">
+                Your passion deserves support. Your dreams deserve a chance.
+              </h1>
+
+              <div className="space-y-3 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                <p>
+                  Whether you&apos;re creating something amazing, working towards a personal goal, or building something that matters, BuyMeData makes it easy to receive support from the people who believe in you.
+                </p>
+              </div>
+
+              {/* Primary & Secondary CTAs */}
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5">
+                <Link
+                  to="/auth/register"
+                  className="w-full sm:w-auto px-7 py-3.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-sm sm:text-base rounded-2xl transition-colors inline-flex items-center justify-center gap-2 whitespace-nowrap"
                 >
-                  <div className="flex items-center flex-1 px-3 py-1.5 sm:py-0">
-                    <span className="text-gray-400 font-semibold text-sm sm:text-base select-none">
-                      buymedata.com/@
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="yourname"
-                      value={heroUsername}
-                      onChange={(e) => setHeroUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                      className="w-full pl-0.5 pr-2 py-2 text-sm sm:text-base font-bold text-[#17191F] placeholder-gray-300 focus:outline-none"
-                    />
+                  <span>Create your free page</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <Link
+                  to="/#how-it-works"
+                  className="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-gray-50 text-[#17191F] font-bold text-sm sm:text-base rounded-2xl border border-gray-200 transition-colors inline-flex items-center justify-center whitespace-nowrap"
+                >
+                  See how it works
+                </Link>
+              </div>
+
+              {/* Interactive Handle Reservation Input */}
+              <form
+                onSubmit={handleClaimSubmit}
+                className="max-w-lg mx-auto lg:mx-0 pt-2"
+              >
+                <label htmlFor="hero-username-input" className="sr-only">
+                  Reserve your BuyMeData username
+                </label>
+                <div className="flex items-center bg-[#F5F6F8] border border-gray-200 focus-within:border-[#F22550] focus-within:bg-white rounded-2xl p-1.5 pl-4 transition-colors">
+                  <span className="text-xs sm:text-sm font-semibold text-gray-500 select-none whitespace-nowrap">
+                    buymedata.com/@
+                  </span>
+                  <input
+                    id="hero-username-input"
+                    type="text"
+                    placeholder="yourname"
+                    value={heroUsername}
+                    onChange={(e) =>
+                      setHeroUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))
+                    }
+                    className="flex-1 min-w-0 bg-transparent px-1 py-2 text-xs sm:text-sm font-bold text-[#17191F] placeholder-gray-400 focus:outline-none"
+                  />
+                  <div className="flex items-center gap-2 pr-1">
                     {checkingUsername && (
-                      <Loader2 className="w-4 h-4 text-gray-400 animate-spin flex-shrink-0" />
+                      <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
                     )}
                     {!checkingUsername && usernameAvailable === true && (
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex-shrink-0">
-                        <Check className="w-3 h-3" /> Available
+                      <span className="text-[11px] font-bold text-[#16865B] inline-flex items-center gap-1 whitespace-nowrap">
+                        <Check className="w-3.5 h-3.5" /> Available
                       </span>
                     )}
                     {!checkingUsername && usernameAvailable === false && (
-                      <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full flex-shrink-0">
-                        Taken
+                      <span className="text-[11px] font-bold text-red-600 whitespace-nowrap">
+                        Unavailable
                       </span>
                     )}
+                    <button
+                      type="submit"
+                      className="px-3.5 py-2 bg-[#17191F] hover:bg-black text-white text-xs font-bold rounded-xl transition-colors whitespace-nowrap"
+                    >
+                      Claim link
+                    </button>
                   </div>
-
-                  <button
-                    type="submit"
-                    className="px-6 py-3.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-extrabold text-sm sm:text-base rounded-xl sm:rounded-2xl shadow-md shadow-[#F22550]/25 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] flex-shrink-0"
-                  >
-                    <span>Claim My Page</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </form>
-
-                <p className="text-xs text-gray-400 mt-2.5 text-center lg:text-left flex items-center justify-center lg:justify-start gap-2">
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Free to join • Instant Gmail / One-Time Link sign-up • Direct bank payouts in ₦</span>
-                </p>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-gray-500">
-                <div className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>1. Claim your unique link</span>
                 </div>
-                <div className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>2. Sign up with Gmail or Link</span>
-                </div>
-                <div className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>3. See dashboard & get paid in ₦</span>
-                </div>
-              </div>
+              </form>
+
+              <p className="text-xs sm:text-sm font-medium text-gray-500">
+                Free to join. Simple to use. Built for meaningful support.
+              </p>
             </div>
 
-            {/* Right Interactive Mockup Widget */}
+            {/* Hero Right Visual: Sample Profile Page Card */}
             <div className="lg:col-span-5">
-              <div className="relative mx-auto max-w-md bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-6 space-y-5">
-                {/* Creator mini badge */}
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-                  <img
-                    src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=120&q=80"
-                    alt="Fola Adebayo"
-                    className="w-12 h-12 rounded-full object-cover ring-2 ring-[#F22550]/20"
-                  />
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <h4 className="font-bold text-gray-900 text-sm">Fola Adebayo</h4>
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 bg-[#FFE6EA] text-[#F22550] rounded-full">
-                        Verified Creator
+              <div className="mx-auto max-w-md bg-white rounded-3xl border border-gray-200/90 shadow-lg shadow-gray-900/5 overflow-hidden">
+                {/* Clean Top Banner */}
+                <div className="h-20 bg-[#17191F] px-6 flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-300">
+                    Page Preview
+                  </span>
+                  <span className="text-xs font-mono font-semibold text-white/90 truncate max-w-[210px]">
+                    buymedata.com/@{displayHandle}
+                  </span>
+                </div>
+
+                <div className="p-6 sm:p-7 space-y-5 -mt-6">
+                  {/* Profile Header */}
+                  <div className="flex items-end gap-3.5">
+                    <div className="w-16 h-16 rounded-2xl bg-[#F22550] text-white font-extrabold text-xl flex items-center justify-center ring-4 ring-white shadow-sm flex-shrink-0">
+                      {displayHandle.slice(0, 1).toUpperCase()}
+                    </div>
+                    <div className="pb-0.5 min-w-0">
+                      <h2 className="text-base font-extrabold text-[#17191F] truncate">
+                        @{displayHandle}
+                      </h2>
+                      <p className="text-xs font-medium text-gray-500 truncate">
+                        buymedata.com/@{displayHandle}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bio preview */}
+                  <div className="p-4 rounded-2xl bg-[#F5F6F8] border border-gray-200/60 space-y-1.5">
+                    <p className="text-xs font-bold text-[#17191F]">
+                      Your page. Your story. Your community.
+                    </p>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      Share what you are creating, learning, or building so people who believe in your work can contribute directly.
+                    </p>
+                  </div>
+
+                  {/* Interactive Sample Naira Amounts */}
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-gray-700">Sample contribution</span>
+                      <span className="font-bold text-[#17191F] tabular-nums">
+                        ₦{sampleAmount.toLocaleString()}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400">buymedata.com/folatech</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    Interactive Support Preview
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    "Building open-source software tools and mentoring young engineers in Lagos."
-                  </p>
-                </div>
-
-                {/* Amount selection */}
-                <div className="space-y-2">
-                  <div className="grid grid-cols-4 gap-2">
-                    {[500, 1000, 2500, 5000].map((amt) => (
-                      <button
-                        key={amt}
-                        type="button"
-                        onClick={() => {
-                          setDemoAmount(amt);
-                          setDemoCustom('');
-                        }}
-                        className={`py-2 px-1 text-center font-bold text-xs rounded-xl border transition-all ${
-                          demoAmount === amt && !demoCustom
-                            ? 'bg-[#F22550] text-white border-[#F22550] shadow-sm'
-                            : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                        }`}
-                      >
-                        ₦{amt.toLocaleString()}
-                      </button>
-                    ))}
-                  </div>
-
-                  <input
-                    type="number"
-                    placeholder="Or custom amount (₦)"
-                    value={demoCustom}
-                    onChange={(e) => {
-                      setDemoCustom(e.target.value);
-                      if (e.target.value) setDemoAmount(Number(e.target.value));
-                    }}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:border-[#F22550]"
-                  />
-                </div>
-
-                <Link
-                  to="/folatech"
-                  className="w-full py-3 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all"
-                >
-                  <Heart className="w-3.5 h-3.5 fill-white" />
-                  Support Fola ({formatCurrency(demoCustom ? Number(demoCustom) || 0 : demoAmount)})
-                </Link>
-
-                <p className="text-[11px] text-gray-400 text-center">
-                  Live link • Supporter messages displayed on creator wall
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3-Step "How BuyMeData Works" Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-          <span className="text-xs font-bold text-[#F22550] uppercase tracking-wider bg-[#FFE6EA] px-3 py-1 rounded-full">
-            Just 3 Simple Steps
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17191F] tracking-tight">
-            How BuyMeData Works
-          </h2>
-          <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
-            Get your page running and start receiving contributions with zero friction.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              step: '01',
-              title: 'Claim Your Page',
-              tag: 'Step 1: Your Link',
-              desc: 'Choose your personal username (e.g. buymedata.com/@yourname) to claim and secure your link in seconds.',
-              icon: AtSign,
-            },
-            {
-              step: '02',
-              title: 'Sign Up with Gmail or Magic Link',
-              tag: 'Step 2: 1-Click Auth',
-              desc: 'Authenticate effortlessly using your Google account or a one-time link sent directly to your inbox. No passwords needed.',
-              icon: Zap,
-            },
-            {
-              step: '03',
-              title: 'See Dashboard & Receive Support',
-              tag: 'Step 3: Direct Payouts',
-              desc: 'Land straight in your dashboard. Share your link with supporters and receive direct bank disbursements. Any other onboarding can be completed when you are already in.',
-              icon: Landmark,
-            },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={item.step}
-                className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:border-[#F22550]/30 hover:shadow-md transition-all flex flex-col justify-between space-y-6 relative overflow-hidden group"
-              >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-black text-[#F22550] font-mono">
-                      {item.step}
-                    </span>
-                    <div className="w-10 h-10 rounded-2xl bg-[#FFE6EA] text-[#F22550] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
-                      <Icon className="w-5 h-5" />
+                    <div className="grid grid-cols-3 gap-2">
+                      {[1000, 2500, 5000].map((amt) => (
+                        <button
+                          key={amt}
+                          type="button"
+                          onClick={() => setSampleAmount(amt)}
+                          className={`py-2 px-2 rounded-xl text-xs font-bold border transition-colors tabular-nums ${
+                            sampleAmount === amt
+                              ? 'bg-[#FFE6EA] border-[#F22550] text-[#F22550]'
+                              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          ₦{amt.toLocaleString()}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  <span className="inline-block text-[11px] font-bold text-[#F22550] bg-[#FFE6EA] px-2.5 py-0.5 rounded-full">
-                    {item.tag}
-                  </span>
-                  <h3 className="font-extrabold text-gray-900 text-xl">{item.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed font-normal">{item.desc}</p>
-                </div>
 
-                <div className="pt-4 border-t border-gray-50 flex items-center text-xs font-bold text-[#F22550]">
-                  <span>Fast, transparent setup</span>
-                  <Check className="w-3.5 h-3.5 ml-1 text-emerald-600" />
+                  {/* Sample Support CTA */}
+                  <Link
+                    to={
+                      heroUsername.length >= 3
+                        ? `/auth/register?claim=${encodeURIComponent(heroUsername)}`
+                        : '/auth/register'
+                    }
+                    className="w-full py-3.5 px-4 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-sm rounded-2xl transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Heart className="w-4 h-4 fill-white" />
+                    <span>Support @{displayHandle}</span>
+                  </Link>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Active Community Campaigns */}
-      {activeCampaigns.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <span className="text-xs font-bold text-[#F22550] uppercase tracking-wider">
-                Community Goals & Impact
-              </span>
-              <h2 className="text-3xl font-extrabold text-[#17191F] tracking-tight mt-1">
-                Featured Fundraising Campaigns
-              </h2>
             </div>
-            <Link
-              to="/folatech"
-              className="text-xs font-bold text-[#F22550] hover:underline flex items-center gap-1"
-            >
-              Explore sample creator <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activeCampaigns.slice(0, 3).map((camp) => (
-              <CampaignCard key={camp.id} campaign={camp} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Dual Value Proposition: For Creators & For Supporters */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* For Creators */}
-          <div className="bg-gradient-to-br from-[#FFE6EA]/50 via-white to-white p-8 sm:p-10 rounded-3xl border border-[#FFCCD5] space-y-6">
-            <div className="w-12 h-12 rounded-2xl bg-[#F22550] text-white flex items-center justify-center shadow-md shadow-[#F22550]/20">
-              <Zap className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-extrabold text-[#17191F]">For Creators & Builders</h3>
-              <p className="text-sm text-gray-600 mt-2 leading-relaxed">
-                Whether you create content, build apps, teach skills, produce podcasts, or run a cause, receiving financial support should be effortless.
-              </p>
-            </div>
-            <ul className="space-y-3 text-sm text-gray-700">
-              <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>Single shareable link with customizable theme & button text</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>Fundraising goals with live verified progress tracking</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>Immutable double-entry ledger with transparent 5% platform fee</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>Automated payouts directly to your Nigerian commercial bank account</span>
-              </li>
-            </ul>
-            <Link
-              to="/auth/register"
-              className="inline-flex items-center gap-2 text-sm font-extrabold text-[#F22550] hover:underline"
-            >
-              Claim your page now <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* For Supporters */}
-          <div className="bg-gradient-to-br from-gray-50 via-white to-white p-8 sm:p-10 rounded-3xl border border-gray-200/80 space-y-6">
-            <div className="w-12 h-12 rounded-2xl bg-[#17191F] text-white flex items-center justify-center shadow-md shadow-gray-900/10">
-              <Heart className="w-6 h-6 fill-white" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-extrabold text-[#17191F]">For Supporters & Fans</h3>
-              <p className="text-sm text-gray-600 mt-2 leading-relaxed">
-                Show love and appreciation to the individuals whose work inspires you. No registration roadblocks or subscription traps.
-              </p>
-            </div>
-            <ul className="space-y-3 text-sm text-gray-700">
-              <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>Zero account required — contribute in under 30 seconds</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>Pay in Naira (₦) via debit card, bank transfer, or USSD</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>Leave encouraging words on creator walls or support anonymously</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>100% verified settlement through Bachs.io infrastructure</span>
-              </li>
-            </ul>
-            <Link
-              to="/how-it-works"
-              className="inline-flex items-center gap-2 text-sm font-extrabold text-[#17191F] hover:underline"
-            >
-              Read how it works <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* Big Call to Action Banner */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-[#17191F] via-[#242731] to-[#17191F] text-white rounded-3xl p-10 sm:p-14 text-center space-y-6 shadow-2xl relative overflow-hidden">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <span className="text-xs font-bold text-[#F22550] uppercase tracking-wider bg-[#FFE6EA]/10 px-3 py-1 rounded-full">
-              Get Started in 3 Steps
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Ready to claim your page?
+      {/* SECTION C: VALUE STRIP */}
+      <section className="py-16 border-b border-gray-200/80 bg-[#F5F6F8]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#17191F] tracking-tight text-center text-balance">
+            Good things happen when people support each other.
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: Link2, label: 'One simple link' },
+              { icon: Sparkles, label: 'No complicated setup' },
+              { icon: ShieldCheck, label: 'Secure online contributions' },
+              { icon: Target, label: 'Support for personal goals and creative projects' },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.label}
+                  className="bg-white rounded-2xl border border-gray-200/80 p-5 flex items-center gap-3.5"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#FFE6EA] text-[#F22550] flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <p className="text-sm font-bold text-[#17191F] leading-snug">{item.label}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION D: HOW IT WORKS */}
+      <section id="how-it-works" className="py-20 lg:py-24 bg-white border-b border-gray-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
+          <div className="max-w-2xl mx-auto text-center space-y-3">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17191F] tracking-tight text-balance">
+              Getting support shouldn&apos;t be complicated.
             </h2>
-            <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
-              Join thousands of creators and causes receiving direct support. A little support goes a long way.
+            <p className="text-base text-gray-600">
+              Three simple steps are all it takes to get started.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {[
+              {
+                number: '01',
+                title: 'Step 1 — Create your page',
+                desc: "Choose your username, set up your profile and tell people what you're working towards.",
+              },
+              {
+                number: '02',
+                title: 'Step 2 — Share your link',
+                desc: 'Share your personal BuyMeData link with friends, followers, supporters and your community.',
+              },
+              {
+                number: '03',
+                title: 'Step 3 — Receive support',
+                desc: 'Receive contributions, track your progress and manage your support from one dashboard.',
+              },
+            ].map((step) => (
+              <div
+                key={step.number}
+                className="bg-[#F5F6F8] rounded-3xl border border-gray-200/80 p-7 sm:p-8 flex flex-col justify-between space-y-6"
+              >
+                <div className="space-y-4">
+                  <span className="inline-block text-sm font-extrabold text-[#F22550] tabular-nums">
+                    {step.number}
+                  </span>
+                  <h3 className="text-xl font-extrabold text-[#17191F]">{step.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center">
             <Link
               to="/auth/register"
-              className="px-8 py-4 bg-[#F22550] hover:bg-[#D81A43] text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-lg shadow-[#F22550]/30 transition-all hover:scale-102 flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-sm rounded-2xl transition-colors"
             >
-              <span>Claim Your Page Free</span>
+              <span>Get started for free</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* SECTION E: WHO IS BUYMEDATA FOR? */}
+      <section className="py-20 lg:py-24 bg-[#F5F6F8] border-b border-gray-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
+          <div className="max-w-3xl space-y-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17191F] tracking-tight text-balance">
+              Whatever you&apos;re working on, there&apos;s room for support.
+            </h2>
+            <p className="text-base text-gray-600 leading-relaxed">
+              You don&apos;t have to be an influencer, celebrity or established organisation to receive support.
+            </p>
+            <p className="text-base text-gray-600 leading-relaxed">
+              BuyMeData is for people with ideas, ambitions, projects and communities worth supporting.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: Sparkles,
+                title: 'Creators & Content Makers',
+                desc: 'Give your audience a simple way to support your content, creativity and the work you put out.',
+              },
+              {
+                icon: Briefcase,
+                title: 'Entrepreneurs & Builders',
+                desc: "Get support for your ideas, side projects, business experiments and the things you're building.",
+              },
+              {
+                icon: GraduationCap,
+                title: 'Students & Individuals',
+                desc: 'Raise support for tuition, learning resources, personal milestones and important life goals.',
+              },
+              {
+                icon: Users,
+                title: 'Communities & Causes',
+                desc: 'Bring people together to support meaningful initiatives and causes that matter.',
+              },
+            ].map((card) => {
+              const Icon = card.icon;
+              return (
+                <div
+                  key={card.title}
+                  className="bg-white rounded-3xl border border-gray-200/80 p-7 space-y-4 flex flex-col"
+                >
+                  <div className="w-11 h-11 rounded-2xl bg-[#FFE6EA] text-[#F22550] flex items-center justify-center">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-[#17191F] leading-snug">
+                    {card.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{card.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION F: FUNDRAISING GOALS */}
+      <section className="py-20 lg:py-24 bg-white border-b border-gray-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Copy */}
+            <div className="lg:col-span-7 space-y-6">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17191F] tracking-tight text-balance">
+                Give your goals a place to grow.
+              </h2>
+
+              <div className="space-y-3 text-base text-gray-600 leading-relaxed">
+                <p>
+                  Some dreams need more than determination. They need a little help from the right people.
+                </p>
+                <p>
+                  Create a fundraising goal, explain what you&apos;re raising money for and let supporters follow your progress.
+                </p>
+                <p>
+                  Whether it&apos;s buying equipment, funding an education, launching a project or reaching a personal milestone, every contribution moves you closer.
+                </p>
+              </div>
+
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                {[
+                  'Set a fundraising target.',
+                  'Share your reason for raising funds.',
+                  'Track contributions and progress.',
+                  'Let supporters be part of your journey.',
+                ].map((bullet) => (
+                  <li key={bullet} className="flex items-start gap-2.5 text-sm font-medium text-[#17191F]">
+                    <CheckCircle2 className="w-4 h-4 text-[#16865B] flex-shrink-0 mt-0.5" />
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleStartGoal}
+                  className="px-7 py-3.5 bg-[#17191F] hover:bg-black text-white font-bold text-sm rounded-2xl transition-colors inline-flex items-center gap-2"
+                >
+                  <span>Start a fundraising goal</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Right Visual: Clearly Labelled Illustrative Example */}
+            <div className="lg:col-span-5">
+              <div className="bg-[#F5F6F8] rounded-3xl border border-gray-200/90 p-6 sm:p-7 space-y-5">
+                <div className="flex items-center justify-between gap-2 pb-3 border-b border-gray-200">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                    Illustrative Example
+                  </span>
+                  <span className="text-[11px] font-semibold text-gray-500">
+                    Goal Preview
+                  </span>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200/80 p-5 space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-[#F22550]">Education &amp; Equipment</p>
+                    <h3 className="text-lg font-extrabold text-[#17191F] leading-snug">
+                      Laptop Upgrade for Final-Year Engineering Project
+                    </h3>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      Sample campaign layout showing how a goal, target amount, and contribution progress bar appear on your page.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-baseline justify-between text-xs">
+                      <span className="text-lg font-extrabold text-[#F22550] tabular-nums">
+                        ₦185,000
+                      </span>
+                      <span className="font-medium text-gray-500 tabular-nums">
+                        of ₦300,000 goal
+                      </span>
+                    </div>
+                    <div
+                      className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden"
+                      role="progressbar"
+                      aria-valuenow={62}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label="Illustrative example fundraising progress"
+                    >
+                      <div className="h-full bg-[#F22550] rounded-full" style={{ width: '62%' }} />
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] font-semibold text-gray-500 tabular-nums">
+                      <span>62% funded</span>
+                      <span>Example progress view</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-gray-500 leading-relaxed">
+                  Figures above are an illustrative preview only, not live platform totals. Browse active community goals anytime on{' '}
+                  <Link to="/explore" className="font-bold text-[#F22550] hover:underline">
+                    Explore
+                  </Link>
+                  .
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION G: FOR SUPPORTERS */}
+      <section className="py-20 lg:py-24 bg-[#F5F6F8] border-b border-gray-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-3xl border border-gray-200/80 p-8 sm:p-12 lg:p-14 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-7 space-y-5">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17191F] tracking-tight text-balance">
+                Your support means more than you think.
+              </h2>
+
+              <div className="space-y-2.5 text-base text-gray-600 leading-relaxed">
+                <p>Sometimes, a little contribution can make a big difference.</p>
+                <p>
+                  BuyMeData makes it easy to support people whose work, ideas and stories you believe in.
+                </p>
+              </div>
+
+              <ul className="space-y-3 pt-1">
+                {[
+                  'Support people directly through their unique pages.',
+                  'Contribute securely in Naira.',
+                  'Leave a personal message of encouragement.',
+                  'Choose to support publicly or anonymously.',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm font-medium text-[#17191F]">
+                    <CheckCircle2 className="w-4 h-4 text-[#16865B] flex-shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <p className="text-sm text-gray-600 pt-1">
+                No complicated registration process. Just find someone you believe in and show your support.
+              </p>
+
+              <div className="pt-2">
+                <Link
+                  to="/explore"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-sm rounded-2xl transition-colors"
+                >
+                  <Compass className="w-4 h-4" />
+                  <span>Find someone to support</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Card: Guest Checkout Experience Preview */}
+            <div className="lg:col-span-5">
+              <div className="bg-[#F5F6F8] rounded-2xl border border-gray-200/80 p-6 space-y-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Supporter Experience
+                </p>
+                <div className="space-y-3">
+                  <div className="bg-white rounded-xl border border-gray-200/80 p-4 flex items-start gap-3">
+                    <Wallet className="w-5 h-5 text-[#F22550] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-[#17191F]">Direct Naira checkout</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Pay securely via card, bank transfer, or USSD without creating a supporter account.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl border border-gray-200/80 p-4 flex items-start gap-3">
+                    <MessageSquareHeart className="w-5 h-5 text-[#F22550] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-[#17191F]">Personal note &amp; privacy control</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Send a note of encouragement, or tick anonymous support to keep your name private.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION H: WHY BUYMEDATA? */}
+      <section className="py-20 lg:py-24 bg-white border-b border-gray-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
+          <div className="max-w-2xl space-y-3">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17191F] tracking-tight text-balance">
+              Simple support. Meaningful impact.
+            </h2>
+            <p className="text-base text-gray-600 leading-relaxed">
+              We believe receiving support should be easy, accessible and transparent.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Link2,
+                title: '1. One link, many possibilities',
+                desc: 'Your personal page gives people one simple place to support you.',
+              },
+              {
+                icon: Landmark,
+                title: '2. Built for local payments',
+                desc: 'Make contributions in Naira with payment options suited to your supporters.',
+              },
+              {
+                icon: TrendingUp,
+                title: '3. Know your progress',
+                desc: 'Follow your contributions and fundraising goals from your personal dashboard.',
+              },
+              {
+                icon: Layers,
+                title: '4. Transparency matters',
+                desc: 'Clear contribution records and transparent platform charges help you understand your support.',
+              },
+              {
+                icon: Users,
+                title: '5. Made for everyone',
+                desc: "Whether you're a creator, student, entrepreneur or community builder, you can get started.",
+              },
+            ].map((block) => {
+              const Icon = block.icon;
+              return (
+                <div
+                  key={block.title}
+                  className="bg-[#F5F6F8] rounded-3xl border border-gray-200/80 p-7 space-y-3.5"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-[#F22550] flex items-center justify-center">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-[#17191F]">{block.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{block.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION J: FINAL CTA */}
+      <section className="py-20 lg:py-24 bg-[#17191F] text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-balance">
+            Someone out there believes in what you&apos;re doing.
+          </h2>
+          <p className="text-base sm:text-lg text-gray-300 max-w-xl mx-auto leading-relaxed">
+            Give them an easy way to support your work, your goals and your journey.
+          </p>
+
+          <div className="pt-2">
+            <Link
+              to="/auth/register"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#F22550] hover:bg-[#D81A43] text-white font-bold text-sm sm:text-base rounded-2xl transition-colors"
+            >
+              <span>Create your free page</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <p className="text-xs sm:text-sm font-medium text-gray-400 pt-1">
+            A little support goes a long way.
+          </p>
         </div>
       </section>
     </div>

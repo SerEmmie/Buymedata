@@ -418,7 +418,7 @@ export function PayoutsPage() {
               <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-bold text-emerald-700 block uppercase">
-                    Account Holder Name (Paystack NUBAN)
+                    Account Holder Name (Verified NUBAN)
                   </span>
                   <span className="font-bold">{accountName}</span>
                 </div>
@@ -529,9 +529,9 @@ export function PayoutsPage() {
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                   <Check className="w-6 h-6" />
                 </div>
-                <h4 className="font-bold text-gray-900 text-sm">Withdrawal Initiated with Paystack</h4>
+                <h4 className="font-bold text-gray-900 text-sm">Withdrawal Request Submitted</h4>
                 <p className="text-xs text-gray-500">
-                  Transfer request dispatched to {account.bankName}. Double-entry ledger settlement confirmed.
+                  Transfer request recorded for {account.bankName}. Double-entry ledger entry confirmed.
                 </p>
               </div>
             ) : (

@@ -147,12 +147,23 @@ export async function ensureUserAndCreatorProfile(
   return userRecord;
 }
 
+export function getSafePostAuthPath(nextPath?: string | null): string {
+  const candidate =
+    nextPath ||
+    (typeof window !== 'undefined' ? window.localStorage.getItem('buymedata_post_auth_next') : null);
+  if (candidate && candidate.startsWith('/') && !candidate.startsWith('//')) {
+    return candidate;
+  }
+  return '/dashboard';
+}
+
 export async function registerWithEmail(
   fullName: string,
   email: string,
   password: string,
   username: string,
-  role: UserRole = 'creator'
+  role: UserRole = 'creator',
+  nextPath?: string
 ): Promise<{ user: AuthUser; sessionActive: boolean }> {
   if (!isSupabaseConfigured()) {
     throw new Error(
@@ -161,8 +172,12 @@ export async function registerWithEmail(
   }
 
   const cleanUsername = sanitizeUsernameCandidate(username);
+  const safeNext = getSafePostAuthPath(nextPath);
+  if (typeof window !== 'undefined' && nextPath) {
+    window.localStorage.setItem('buymedata_post_auth_next', safeNext);
+  }
   const redirectUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : undefined;
+    typeof window !== 'undefined' ? `${window.location.origin}${safeNext}` : undefined;
 
   const { data, error } = await supabase.auth.signUp({
     email: email.trim(),
@@ -227,7 +242,8 @@ export async function loginWithEmail(email: string, password: string): Promise<A
  */
 export async function sendOneTimeEmailLink(
   email: string,
-  claimedUsername?: string
+  claimedUsername?: string,
+  nextPath?: string
 ): Promise<void> {
   if (!isSupabaseConfigured()) {
     throw new Error(
@@ -236,10 +252,14 @@ export async function sendOneTimeEmailLink(
   }
 
   const cleanClaim = claimedUsername ? sanitizeUsernameCandidate(claimedUsername) : undefined;
+  const safeNext = getSafePostAuthPath(nextPath);
   if (typeof window !== 'undefined') {
     window.localStorage.setItem('buymedata_email_for_link', email.trim());
     if (cleanClaim) {
       window.localStorage.setItem('buymedata_claimed_username', cleanClaim);
+    }
+    if (nextPath) {
+      window.localStorage.setItem('buymedata_post_auth_next', safeNext);
     }
   }
 
@@ -247,7 +267,7 @@ export async function sendOneTimeEmailLink(
     email: email.trim(),
     options: {
       emailRedirectTo:
-        typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : undefined,
+        typeof window !== 'undefined' ? `${window.location.origin}${safeNext}` : undefined,
       data: cleanClaim ? { claimed_username: cleanClaim } : undefined,
     },
   });
@@ -259,27 +279,33 @@ export async function sendOneTimeEmailLink(
 
 /**
  * Initiates Google OAuth sign-in via Supabase Auth.
- * Supabase redirects the browser to Google and back to `/dashboard`.
+ * Supabase redirects the browser to Google and back to `/dashboard` (or `?next=`).
  */
-export async function loginWithGoogle(claimedUsername?: string): Promise<void> {
+export async function loginWithGoogle(claimedUsername?: string, nextPath?: string): Promise<void> {
   if (!isSupabaseConfigured()) {
     throw new Error(
       'Supabase is not configured yet. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.'
     );
   }
 
-  if (typeof window !== 'undefined' && claimedUsername) {
-    window.localStorage.setItem(
-      'buymedata_claimed_username',
-      sanitizeUsernameCandidate(claimedUsername)
-    );
+  const safeNext = getSafePostAuthPath(nextPath);
+  if (typeof window !== 'undefined') {
+    if (claimedUsername) {
+      window.localStorage.setItem(
+        'buymedata_claimed_username',
+        sanitizeUsernameCandidate(claimedUsername)
+      );
+    }
+    if (nextPath) {
+      window.localStorage.setItem('buymedata_post_auth_next', safeNext);
+    }
   }
 
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo:
-        typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : undefined,
+        typeof window !== 'undefined' ? `${window.location.origin}${safeNext}` : undefined,
       queryParams: {
         access_type: 'offline',
         prompt: 'select_account',

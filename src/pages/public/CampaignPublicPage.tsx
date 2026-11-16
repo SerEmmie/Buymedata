@@ -270,15 +270,20 @@ export function CampaignPublicPage() {
         {/* Left Column: Media, Story, Tabs */}
         <div className="lg:col-span-8 space-y-6">
           {/* Cover Media */}
-          <div className="rounded-3xl overflow-hidden aspect-video w-full bg-gray-100 border border-gray-100 shadow-xs relative">
-            <img
-              src={
-                campaign.coverImage ||
-                'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80'
-              }
-              alt={campaign.title}
-              className="w-full h-full object-cover"
-            />
+          <div className="rounded-3xl overflow-hidden aspect-video w-full bg-[#17191F] border border-gray-100 shadow-xs relative">
+            {campaign.coverImage ? (
+              <img
+                src={campaign.coverImage}
+                alt={campaign.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-[#17191F] via-[#272B36] to-[#F22550]/80 flex items-end p-6">
+                <p className="text-sm font-bold text-white/85 truncate">
+                  {campaign.title}
+                </p>
+              </div>
+            )}
             <div className="absolute top-4 left-4 flex items-center gap-2">
               <span className="px-3 py-1 bg-white/95 text-gray-900 text-xs font-bold rounded-xl shadow-xs backdrop-blur-xs">
                 {campaign.category}
@@ -308,14 +313,17 @@ export function CampaignPublicPage() {
                 to={`/${creator.username}`}
                 className="flex items-center gap-3 group"
               >
-                <img
-                  src={
-                    creator.profileImage ||
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'
-                  }
-                  alt={creator.displayName}
-                  className="w-11 h-11 rounded-full object-cover ring-2 ring-[#F22550]/20"
-                />
+                {creator.profileImage ? (
+                  <img
+                    src={creator.profileImage}
+                    alt={creator.displayName}
+                    className="w-11 h-11 rounded-full object-cover ring-2 ring-[#F22550]/20"
+                  />
+                ) : (
+                  <div className="w-11 h-11 rounded-full bg-[#FFE6EA] text-[#F22550] font-extrabold text-sm flex items-center justify-center ring-2 ring-[#F22550]/20">
+                    {(creator.displayName || creator.username || 'B').slice(0, 1).toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <h4 className="font-bold text-gray-900 text-sm group-hover:text-[#F22550] transition-colors flex items-center gap-1.5">
                     <span>{creator.displayName}</span>

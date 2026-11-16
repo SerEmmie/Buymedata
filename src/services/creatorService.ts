@@ -3,10 +3,8 @@ import { CreatorProfile, ThemePreset, SocialLinks, CreatorPublicSettings } from 
 
 export const DEFAULT_SUGGESTED_AMOUNTS = [500, 1000, 2000, 5000];
 
-const DEFAULT_AVATAR =
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
-const DEFAULT_COVER =
-  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+const DEFAULT_AVATAR = '';
+const DEFAULT_COVER = '';
 
 function mapDbCreatorProfile(row: Record<string, any>): CreatorProfile {
   return {
@@ -53,7 +51,7 @@ export async function checkUsernameAvailability(
     'admin', 'dashboard', 'auth', 'login', 'register', 'checkout', 'api',
     'help', 'about', 'terms', 'privacy', 'payouts', 'docs', 'assets',
     'settings', 'notifications', 'how-it-works', 'faq', 'guidelines', 'refund-policy',
-    'campaigns', 'explore', 'support', 'onboarding',
+    'campaigns', 'explore', 'contact', 'support', 'onboarding',
   ];
   if (reserved.includes(clean)) return false;
 
@@ -187,6 +185,29 @@ export async function saveCreatorProfile(
     .eq('id', profile.userId);
 
   return mapDbCreatorProfile(data);
+}
+
+export async function getPublicCreators(limit = 24): Promise<CreatorProfile[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from('creator_profiles')
+      .select('*')
+      .eq('published', true)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Error fetching public creators:', error.message);
+      return [];
+    }
+
+    return (data || []).map(mapDbCreatorProfile);
+  } catch (err) {
+    console.error('Failed to fetch public creators:', err);
+    return [];
+  }
 }
 
 /**

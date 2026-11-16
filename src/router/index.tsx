@@ -112,12 +112,16 @@ export function useParams<T extends Record<string, string>>(): T {
       'auth',
       'onboarding',
       'how-it-works',
+      'explore',
+      'contact',
       'about',
       'faq',
       'terms',
       'privacy',
       'refund-policy',
       'guidelines',
+      'checkout',
+      'api',
     ];
     if (!reserved.includes(parts[0].toLowerCase())) {
       resolvedParams.username = decodeURIComponent(parts[0]);
@@ -193,15 +197,26 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   const [params] = useState<Record<string, string>>({});
 
   const navigate = (to: string) => {
-    const [newPath, newSearch = ''] = to.split('?');
+    const [pathAndSearch, hashFragment = ''] = to.split('#');
+    const [rawNewPath, newSearch = ''] = pathAndSearch.split('?');
+    const newPath = rawNewPath || '/';
     const basePath = getRepoBasePath();
-    const fullTarget = `${basePath}${newPath}${newSearch ? `?${newSearch}` : ''}`;
+    const fullTarget = `${basePath}${newPath}${newSearch ? `?${newSearch}` : ''}${hashFragment ? `#${hashFragment}` : ''}`;
 
-    if (newPath !== pathname || (newSearch && newSearch !== search)) {
+    if (newPath !== pathname || (newSearch && newSearch !== search) || hashFragment) {
       window.history.pushState({}, '', fullTarget);
-      setPathname(newPath || '/');
+      setPathname(newPath);
       setSearch(newSearch ? `?${newSearch}` : '');
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      if (hashFragment) {
+        setTimeout(() => {
+          const targetEl = document.getElementById(hashFragment);
+          if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 60);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
     }
   };
 

@@ -10,7 +10,7 @@ interface CampaignCardProps {
 }
 
 export function CampaignCard({ campaign, creatorUsername }: CampaignCardProps) {
-  const username = creatorUsername || 'folatech';
+  const username = creatorUsername || campaign.creatorUsername || 'creator';
   const progress = calculateProgress(campaign.amountRaised, campaign.targetAmount);
 
   // Calculate days remaining
@@ -23,17 +23,22 @@ export function CampaignCard({ campaign, creatorUsername }: CampaignCardProps) {
   const campaignUrl = `/@${username.replace(/^@/, '')}/campaigns/${campaign.slug}`;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col group">
-      {/* Cover image */}
-      <div className="relative aspect-video w-full bg-gray-100 overflow-hidden">
-        <img
-          src={
-            campaign.coverImage ||
-            'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=800&q=80'
-          }
-          alt={campaign.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+    <div className="bg-white rounded-2xl border border-gray-200/80 overflow-hidden hover:border-[#F22550]/40 transition-colors flex flex-col group">
+      {/* Cover image or clean gradient banner */}
+      <div className="relative aspect-video w-full bg-[#17191F] overflow-hidden">
+        {campaign.coverImage ? (
+          <img
+            src={campaign.coverImage}
+            alt={campaign.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-[#17191F] via-[#272B36] to-[#F22550]/80 flex items-end p-4">
+            <span className="text-xs font-bold text-white/80 truncate">
+              buymedata.com/@{username.replace(/^@/, '')}
+            </span>
+          </div>
+        )}
         <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
           <span className="px-2.5 py-1 text-xs font-semibold bg-white/95 text-gray-800 rounded-lg shadow-sm backdrop-blur-xs">
             {campaign.category}

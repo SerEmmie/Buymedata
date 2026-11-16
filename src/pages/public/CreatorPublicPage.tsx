@@ -164,10 +164,10 @@ export function CreatorPublicPage() {
             Go Home
           </Link>
           <Link
-            to="/folatech"
+            to="/explore"
             className="px-5 py-2.5 bg-[#F22550] text-white font-semibold text-xs rounded-xl hover:bg-[#D81A43]"
           >
-            Explore Sample Creator (@folatech)
+            Explore pages
           </Link>
         </div>
       </div>
@@ -216,11 +216,17 @@ export function CreatorPublicPage() {
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 {/* Avatar */}
                 <div className="relative">
-                  <img
-                    src={creator.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
-                    alt={creator.displayName}
-                    className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover ring-4 ring-white shadow-md shadow-black/10 bg-white"
-                  />
+                  {creator.profileImage ? (
+                    <img
+                      src={creator.profileImage}
+                      alt={creator.displayName}
+                      className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover ring-4 ring-white shadow-md shadow-black/10 bg-white"
+                    />
+                  ) : (
+                    <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-[#F22550] text-white font-extrabold text-3xl flex items-center justify-center ring-4 ring-white shadow-md shadow-black/10">
+                      {(creator.displayName || creator.username || 'B').slice(0, 1).toUpperCase()}
+                    </div>
+                  )}
                   <span className="absolute bottom-1 right-1 bg-emerald-500 text-white p-1 rounded-full ring-2 ring-white" title="Verified Creator">
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </span>

@@ -207,11 +207,17 @@ export function ContributionCheckoutModal({
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50/80 to-white">
           <div className="flex items-center gap-3">
-            <img
-              src={creator.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
-              alt={creator.displayName}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-[#F22550]/20"
-            />
+            {creator.profileImage ? (
+              <img
+                src={creator.profileImage}
+                alt={creator.displayName}
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-[#F22550]/20"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-[#FFE6EA] text-[#F22550] font-extrabold text-sm flex items-center justify-center ring-2 ring-[#F22550]/20">
+                {(creator.displayName || creator.username || 'B').slice(0, 1).toUpperCase()}
+              </div>
+            )}
             <div>
               <h3 className="font-bold text-gray-900 leading-tight">
                 Support {creator.displayName}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle, Search } from 'lucide-react';
+import { ChevronDown, Search } from 'lucide-react';
 import { Link } from '../../router';
 
 export function FaqPage() {
@@ -10,62 +10,68 @@ export function FaqPage() {
     {
       category: 'General',
       q: 'What is BuyMeData?',
-      a: 'BuyMeData is a creator support, crowdfunding, and personal fundraising platform. It lets creators, developers, educators, and organizations receive financial contributions through a single personalized link (buymedata.com/username) and launch dedicated fundraising campaigns.',
+      a: 'BuyMeData is a platform that allows individuals, creators and communities to receive financial support through a personalised page and shareable link.',
     },
     {
       category: 'General',
-      q: 'How do I start receiving support?',
-      a: 'Simply click "Get Started", register with your email or Google account, customize your profile bio and support button, and share your unique URL on your social profiles, newsletters, or portfolio.',
+      q: 'Who can use BuyMeData?',
+      a: 'Anyone with a legitimate reason to receive support can create a page. This includes content creators, freelancers, students, entrepreneurs, individuals and community organisers.',
+    },
+    {
+      category: 'Getting Started',
+      q: 'How do I receive support?',
+      a: 'Create your page, share your unique link and allow supporters to contribute through the available payment options.',
     },
     {
       category: 'Contributions',
-      q: 'Do supporters need an account to contribute?',
-      a: 'No. Supporters can contribute in under 30 seconds using their debit card, bank transfer, or USSD without signing up or logging in.',
+      q: 'Do supporters need an account?',
+      a: 'No. Supporters can contribute directly through your page without creating an account using guest checkout, needing only an email address for their payment receipt.',
     },
     {
-      category: 'Contributions',
-      q: 'Can contributions be made anonymously?',
-      a: 'Yes. During checkout, supporters can check the "Make contribution anonymous" box. Their name will be replaced with "Generous Supporter" on the public page while the creator still receives the full funds.',
+      category: 'Fundraising Goals',
+      q: 'Can I set a fundraising target?',
+      a: 'Yes. You can create a goal, set a target amount and track contributions towards it.',
     },
     {
-      category: 'Payments & Security',
-      q: 'How secure are payments on BuyMeData?',
-      a: 'All transactions use bank-grade 256-bit encryption through licensed Central Bank of Nigeria (CBN) compliant payment infrastructure. We never store raw debit card numbers or security PINs.',
+      category: 'Pricing & Fees',
+      q: 'How much does BuyMeData cost?',
+      a: 'Creating your BuyMeData page is free with no monthly subscription or setup fee. A transparent 5% platform fee applies to successful contributions.',
     },
     {
-      category: 'Fees & Payouts',
-      q: 'What are the platform fees?',
-      a: 'BuyMeData charges a transparent 5% platform fee on successful contributions. There are no monthly subscriptions, setup fees, or hidden charges. What you see is what you get.',
+      category: 'Privacy',
+      q: 'Can supporters stay anonymous?',
+      a: 'Yes. During checkout, supporters can choose to hide their name publicly while still completing their contribution.',
     },
     {
-      category: 'Fees & Payouts',
-      q: 'How do I withdraw my earnings?',
-      a: 'In your Creator Dashboard, go to "Payouts & Bank" and add your verified Nigerian bank account (GTBank, Access Bank, Zenith, Kuda, OPay, First Bank, etc.). Once your available balance reaches ₦2,000, you can request a withdrawal anytime.',
+      category: 'Withdrawals',
+      q: 'How do I withdraw my funds?',
+      a: 'Add and verify a Nigerian commercial bank account in your dashboard under Payouts & Bank. Once your available balance reaches the ₦2,000 minimum threshold, you can submit a withdrawal request (a ₦50 transfer fee applies) subject to platform verification.',
     },
     {
-      category: 'Campaigns',
-      q: 'How do fundraising campaigns differ from one-time support?',
-      a: 'Your support button is always active for general contributions. Campaigns, on the other hand, are dedicated fundraising initiatives with a specific financial goal (e.g., ₦850,000 for Solar Inverter & Fiber Setup) and an optional deadline, complete with a live progress bar and creator updates.',
+      category: 'Eligibility',
+      q: 'Is BuyMeData only for influencers?',
+      a: 'No. BuyMeData is built for anyone working on something meaningful — whether you are a student, builder, creative, volunteer organiser or everyday individual with a goal worth supporting.',
     },
   ];
 
   const filtered = faqs.filter(
     (f) =>
       f.q.toLowerCase().includes(search.toLowerCase()) ||
-      f.a.toLowerCase().includes(search.toLowerCase())
+      f.a.toLowerCase().includes(search.toLowerCase()) ||
+      f.category.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
       <div className="text-center max-w-2xl mx-auto space-y-4">
-        <span className="text-xs font-bold text-[#F22550] uppercase tracking-wider">
-          Help & Support
-        </span>
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-          Frequently Asked Questions
+        <p className="text-xs font-bold text-[#F22550] uppercase tracking-[0.14em]">
+          Help &amp; Support
+        </p>
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#17191F] tracking-tight">
+          Frequently asked questions.
         </h1>
-        <p className="text-gray-600 text-sm">
-          Everything you need to know about receiving support, payments, and campaigns on BuyMeData.
+        <p className="text-gray-600 text-sm sm:text-base">
+          Everything you need to know about creating your page, fundraising goals, guest checkout, fees, and bank withdrawals.
         </p>
 
         {/* Search bar */}
@@ -73,10 +79,11 @@ export function FaqPage() {
           <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-5" />
           <input
             type="text"
-            placeholder="Search questions (e.g. payout, fees, campaigns)..."
+            placeholder="Search questions (e.g. withdraw, fees, goals)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl border border-gray-200 text-sm focus:outline-none focus:border-[#F22550] shadow-xs"
+            aria-label="Search frequently asked questions"
+            className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl border border-gray-200 text-sm focus:outline-none focus:border-[#F22550] focus:ring-2 focus:ring-[#FFE6EA]"
           />
         </div>
       </div>
@@ -84,25 +91,37 @@ export function FaqPage() {
       <div className="space-y-3">
         {filtered.map((faq, idx) => {
           const isOpen = openIndex === idx;
+          const btnId = `faq-btn-${idx}`;
+          const panelId = `faq-panel-${idx}`;
           return (
             <div
-              key={idx}
-              className="bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all shadow-xs"
+              key={faq.q}
+              className="bg-white rounded-2xl border border-gray-200/80 overflow-hidden transition-colors"
             >
-              <button
-                type="button"
-                onClick={() => setOpenIndex(isOpen ? null : idx)}
-                className="w-full p-5 text-left flex items-center justify-between font-bold text-gray-900 text-sm hover:text-[#F22550] transition-colors"
-              >
-                <span>{faq.q}</span>
-                <ChevronDown
-                  className={`w-4 h-4 text-gray-400 transition-transform ${
-                    isOpen ? 'rotate-180 text-[#F22550]' : ''
-                  }`}
-                />
-              </button>
+              <h2>
+                <button
+                  id={btnId}
+                  type="button"
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
+                  onClick={() => setOpenIndex(isOpen ? null : idx)}
+                  className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-[#17191F] text-sm sm:text-base hover:text-[#F22550] transition-colors"
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${
+                      isOpen ? 'rotate-180 text-[#F22550]' : ''
+                    }`}
+                  />
+                </button>
+              </h2>
               {isOpen && (
-                <div className="px-5 pb-5 text-xs text-gray-600 leading-relaxed border-t border-gray-50 pt-3">
+                <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={btnId}
+                  className="px-5 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-3.5"
+                >
                   {faq.a}
                 </div>
               )}
@@ -112,20 +131,27 @@ export function FaqPage() {
 
         {filtered.length === 0 && (
           <div className="text-center py-12 text-sm text-gray-500">
-            No matching questions found for "{search}".
+            No matching questions found for &ldquo;{search}&rdquo;.
           </div>
         )}
       </div>
 
-      <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200/60 text-center space-y-2">
-        <h4 className="font-bold text-sm text-gray-900">Still have questions?</h4>
-        <p className="text-xs text-gray-500">
-          Our team is here to assist creators and supporters across Africa.
+      <div className="bg-white rounded-2xl p-6 border border-gray-200/80 text-center space-y-2">
+        <h3 className="font-bold text-sm text-[#17191F]">Still have questions?</h3>
+        <p className="text-xs text-gray-600">
+          Reach out directly to our support team or send us a message.
         </p>
-        <div className="pt-2">
+        <div className="pt-2 flex items-center justify-center gap-4">
+          <Link
+            to="/contact"
+            className="text-xs font-bold text-[#F22550] hover:underline"
+          >
+            Contact us
+          </Link>
+          <span className="text-gray-300">•</span>
           <a
             href="mailto:support@buymedata.com"
-            className="text-xs font-bold text-[#F22550] hover:underline"
+            className="text-xs font-bold text-gray-700 hover:text-[#F22550]"
           >
             support@buymedata.com
           </a>

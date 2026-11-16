@@ -18,7 +18,7 @@ export function LegalPage({ docType }: { docType?: 'terms' | 'privacy' | 'refund
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-8">
       {/* Draft Disclaimer Notice */}
-      <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-2xl flex items-start gap-3">
+      <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <div className="text-xs text-amber-900 leading-relaxed">
           <p className="font-bold">Initial Draft Template — Pending Production Legal Review</p>
@@ -118,7 +118,7 @@ export function LegalPage({ docType }: { docType?: 'terms' | 'privacy' | 'refund
 
             <h3 className="font-bold text-gray-900 text-sm pt-2">3. Payment Security</h3>
             <p>
-              Payment card numbers, CVVs, and banking PINs are processed directly by certified payment gateways (such as Paystack). BuyMeData servers never store or transmit raw card credentials.
+              Payment card numbers, CVVs, and banking PINs are processed directly by certified payment gateways (such as Bachs.io). BuyMeData servers never store or transmit raw card credentials.
             </p>
           </div>
         )}

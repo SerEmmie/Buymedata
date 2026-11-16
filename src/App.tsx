@@ -15,6 +15,8 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 // Public pages
 import { HomePage } from './pages/public/HomePage';
 import { HowItWorksPage } from './pages/public/HowItWorksPage';
+import { ExplorePage } from './pages/public/ExplorePage';
+import { ContactPage } from './pages/public/ContactPage';
 import { AboutPage } from './pages/public/AboutPage';
 import { FaqPage } from './pages/public/FaqPage';
 import { LegalPage } from './pages/public/LegalPage';
@@ -52,6 +54,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { fbUser, loading } = useAuth();
+  const { pathname } = useLocation();
 
   if (loading) {
     return (
@@ -62,17 +65,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!fbUser) {
+    const nextParam = pathname && pathname !== '/dashboard' ? `?next=${encodeURIComponent(pathname)}` : '';
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-4 text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Sign in required</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Log in required</h2>
         <p className="text-xs text-gray-500 mb-4 max-w-xs">
-          Please sign in to access your creator dashboard and financial ledger.
+          Please log in to access your BuyMeData dashboard and financial ledger.
         </p>
         <Link
-          to="/auth/login"
+          to={`/auth/login${nextParam}`}
           className="px-5 py-2.5 bg-[#F22550] text-white font-bold text-xs rounded-xl shadow-xs"
         >
-          Sign In
+          Log in
         </Link>
       </div>
     );
@@ -140,6 +144,8 @@ function MainContent() {
   let publicPageContent: React.ReactNode | null = null;
   if (pathname === '/' || pathname === '') publicPageContent = <HomePage />;
   else if (pathname === '/how-it-works') publicPageContent = <HowItWorksPage />;
+  else if (pathname === '/explore') publicPageContent = <ExplorePage />;
+  else if (pathname === '/contact') publicPageContent = <ContactPage />;
   else if (pathname === '/about') publicPageContent = <AboutPage />;
   else if (pathname === '/faq') publicPageContent = <FaqPage />;
   else if (pathname === '/terms') publicPageContent = <LegalPage docType="terms" />;
@@ -149,7 +155,7 @@ function MainContent() {
 
   if (publicPageContent) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FAFAFC]">
+      <div className="min-h-screen flex flex-col bg-[#F5F6F8]">
         <Navbar />
         <main className="flex-1">{publicPageContent}</main>
         <Footer />
